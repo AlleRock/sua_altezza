@@ -14,10 +14,9 @@
     <style>
         :root {
             --gold: #f1c40f;
-            --royal-purple: #4b0082;
-            --accent: #d4af37;
             --bg: #0f172a;
             --card-bg: rgba(255, 255, 255, 0.07);
+            --accent: #d4af37;
             --danger: #ef4444;
         }
 
@@ -41,7 +40,6 @@
             margin: 0; 
             color: var(--gold);
             font-family: 'Georgia', serif;
-            letter-spacing: 1px;
         }
         .subtitle { font-size: 0.7rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 2px; }
 
@@ -58,11 +56,10 @@
             border-radius: 12px;
             padding: 10px;
             text-align: center;
-            backdrop-filter: blur(4px);
         }
 
-        .label { font-size: 0.6rem; color: var(--gold); font-weight: bold; text-transform: uppercase; }
-        .value { font-size: 1.6rem; font-weight: 800; margin: 5px 0; color: #fff; }
+        .label { font-size: 0.6rem; color: var(--gold); font-weight: bold; }
+        .value { font-size: 1.5rem; font-weight: 800; margin: 5px 0; }
         .unit { font-size: 0.7rem; color: #94a3b8; }
 
         .instrument-panel {
@@ -75,12 +72,7 @@
             margin-bottom: 15px;
             border: 1px solid var(--accent);
         }
-        #compass-disc {
-            font-size: 1.4rem;
-            transition: transform 0.2s ease-out;
-            margin-right: 15px;
-            display: inline-block;
-        }
+        #compass-disc { font-size: 1.4rem; transition: transform 0.2s ease-out; margin-right: 15px; }
         #dir-text { font-weight: 600; font-size: 0.9rem; color: var(--gold); }
 
         #map {
@@ -89,7 +81,6 @@
             border-radius: 20px;
             margin-bottom: 15px;
             border: 1px solid var(--accent);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
             z-index: 1;
         }
 
@@ -105,7 +96,6 @@
             border: none;
             font-weight: bold;
             cursor: pointer;
-            transition: 0.2s;
             text-transform: uppercase;
             font-size: 0.8rem;
         }
@@ -113,16 +103,12 @@
         .btn-main { background: var(--gold); color: #000; grid-column: span 2; font-size: 1rem; }
         .btn-save { background: transparent; color: var(--gold); border: 1px solid var(--gold); }
         .btn-reset { background: transparent; color: var(--danger); border: 1px solid var(--danger); }
-        
-        button:active { transform: scale(0.96); }
 
         #status-bar {
             margin-top: 15px;
             padding: 8px;
             font-size: 0.75rem;
             text-align: center;
-            background: rgba(0,0,0,0.3);
-            border-radius: 8px;
             color: #94a3b8;
         }
 
@@ -133,11 +119,7 @@
             text-align: center;
         }
 
-        .author-name {
-            color: var(--gold);
-            font-weight: 700;
-            text-shadow: 0 0 5px rgba(241, 196, 15, 0.2);
-        }
+        .author-name { color: var(--gold); font-weight: 700; }
     </style>
 </head>
 <body>
@@ -174,12 +156,12 @@
         <div id="map"></div>
 
         <div class="controls">
-            <button class="btn-main" onclick="capturePoint()">👑 Registra Punto Corrente</button>
+            <button class="btn-main" onclick="capturePoint()">👑 Registra Punto</button>
             <button class="btn-save" onclick="exportJSON()">💾 Scarica JSON</button>
-            <button class="btn-reset" onclick="clearHistory()">🧹 Resetta Tutto</button>
+            <button class="btn-reset" onclick="clearHistory()">🧹 Resetta</button>
         </div>
 
-        <div id="status-bar">In attesa del segnale satellitare...</div>
+        <div id="status-bar">Ricerca segnale...</div>
 
         <footer>
             un app di <span class="author-name">Alessandro Rocca</span>
@@ -200,8 +182,6 @@
                 navigator.geolocation.watchPosition(updateLiveMetrics, handleError, {
                     enableHighAccuracy: true
                 });
-            } else {
-                alert("GPS non supportato.");
             }
         }
 
@@ -210,73 +190,62 @@
             currentPos.lon = pos.coords.longitude;
             currentPos.alt = pos.coords.altitude;
 
-            const speedKmH = pos.coords.speed ? (pos.coords.speed * 3.6).toFixed(0) : 0;
-            document.getElementById('speed').innerText = speedKmH;
+            document.getElementById('speed').innerText = pos.coords.speed ? (pos.coords.speed * 3.6).toFixed(0) : 0;
+            document.getElementById('gps-alt').innerText = currentPos.alt ? currentPos.alt.toFixed(1) : "N.D.";
 
-            const heading = pos.coords.heading;
-            if (heading !== null && heading !== undefined) {
-                document.getElementById('compass-disc').style.transform = `rotate(${heading}deg)`;
-                document.getElementById('dir-text').innerText = `Direzione: ${heading.toFixed(0)}°`;
+            if (pos.coords.heading !== null) {
+                document.getElementById('compass-disc').style.transform = `rotate(${pos.coords.heading}deg)`;
+                document.getElementById('dir-text').innerText = `Direzione: ${pos.coords.heading.toFixed(0)}°`;
             }
 
             const latlng = [currentPos.lat, currentPos.lon];
-            if (!marker) {
-                marker = L.marker(latlng).addTo(map);
-                map.setView(latlng, 16);
-            } else {
-                marker.setLatLng(latlng);
-            }
-            
-            document.getElementById('status-bar').innerText = "Segnale GPS attivo.";
+            if (!marker) { marker = L.marker(latlng).addTo(map); map.setView(latlng, 16); }
+            else { marker.setLatLng(latlng); }
+            document.getElementById('status-bar').innerText = "GPS Attivo";
         }
 
         async function capturePoint() {
             if (!currentPos.lat) return;
             const status = document.getElementById('status-bar');
-            status.innerText = "Registrazione in corso...";
-
-            document.getElementById('gps-alt').innerText = currentPos.alt ? currentPos.alt.toFixed(1) : "N.D.";
+            let elevMappa = "OFFLINE";
 
             try {
-                const res = await fetch(`https://api.open-elevation.com/api/v1/lookup?locations=${currentPos.lat},${currentPos.lon}`);
+                const res = await fetch(`https://api.open-elevation.com/api/v1/lookup?locations=${currentPos.lat},${currentPos.lon}`, { signal: AbortSignal.timeout(5000) });
                 const data = await res.json();
-                const elevMappa = data.results[0].elevation;
-                
-                document.getElementById('map-alt').innerText = elevMappa.toFixed(1);
-
-                history.push({
-                    timestamp: new Date().toLocaleString(),
-                    lat: currentPos.lat.toFixed(6),
-                    lon: currentPos.lon.toFixed(6),
-                    quota_gps: currentPos.alt ? currentPos.alt.toFixed(1) : "N.D.",
-                    quota_mappa: elevMappa.toFixed(1),
-                    velocita: document.getElementById('speed').innerText
-                });
-                status.innerText = `Punto salvato! (${history.length} totali)`;
+                elevMappa = data.results[0].elevation.toFixed(1);
             } catch (err) {
-                status.innerText = "Errore database mappe.";
+                console.log("Sei offline, uso solo dati GPS.");
             }
+
+            document.getElementById('map-alt').innerText = elevMappa;
+
+            history.push({
+                tempo: new Date().toLocaleString(),
+                lat: currentPos.lat.toFixed(6),
+                lon: currentPos.lon.toFixed(6),
+                quota_gps: currentPos.alt ? currentPos.alt.toFixed(1) : "N.D.",
+                quota_mappa: elevMappa,
+                velocita: document.getElementById('speed').innerText
+            });
+            status.innerText = `Salvato! (${history.length} punti)`;
         }
 
         function exportJSON() {
-            if (history.length === 0) return alert("Cronologia vuota!");
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(history, null, 2));
             const dl = document.createElement('a');
             dl.setAttribute("href", dataStr);
-            dl.setAttribute("download", "viaggio_alessandro_rocca.json");
+            dl.setAttribute("download", "viaggio_rocca.json");
             dl.click();
         }
 
         function clearHistory() {
-            if (confirm("Mio Signore, resettare la cronologia?")) {
+            if (confirm("Resettare tutto?")) {
                 history = [];
-                document.getElementById('status-bar').innerText = "Tabula rasa.";
+                document.getElementById('status-bar').innerText = "Resettato.";
             }
         }
 
-        function handleError(err) {
-            document.getElementById('status-bar').innerText = "Errore GPS: " + err.message;
-        }
+        function handleError(err) { document.getElementById('status-bar').innerText = "Errore GPS"; }
 
         window.onload = initApp;
     </script>
