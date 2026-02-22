@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sua Altezza - Navigator Pro</title>
+
+    <link rel="apple-touch-icon" href="icona.png">
+    <link rel="icon" type="image/png" href="icona.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        :root {
+            --gold: #f1c40f;
+            --royal-purple: #4b0082;
+            --accent: #d4af37;
+            --bg: #0f172a;
+            --card-bg: rgba(255, 255, 255, 0.07);
+            --danger: #ef4444;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: var(--bg);
+            color: #fff;
+            margin: 0;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container { width: 100%; max-width: 500px; padding-bottom: 40px; }
+
+        header { text-align: center; margin: 15px 0; }
+        h1 { 
+            font-size: 2rem; 
+            margin: 0; 
+            color: var(--gold);
+            font-family: 'Georgia', serif;
+            letter-spacing: 1px;
+        }
+        .subtitle { font-size: 0.7rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 2px; }
+
+        .grid-data {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            border-radius: 12px;
+            padding: 10px;
+            text-align: center;
+            backdrop-filter: blur(4px);
+        }
+
+        .label { font-size: 0.6rem; color: var(--gold); font-weight: bold; text-transform: uppercase; }
+        .value { font-size: 1.6rem; font-weight: 800; margin: 5px 0; color: #fff; }
+        .unit { font-size: 0.7rem; color: #94a3b8; }
+
+        .instrument-panel {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--card-bg);
+            border-radius: 50px;
+            padding: 8px 20px;
+            margin-bottom: 15px;
+            border: 1px solid var(--accent);
+        }
+        #compass-disc {
+            font-size: 1.4rem;
+            transition: transform 0.2s ease-out;
+            margin-right: 15px;
+            display: inline-block;
+        }
+        #dir-text { font-weight: 600; font-size: 0.9rem; color: var(--gold); }
+
+        #map {
+            height: 280px;
+            width: 100%;
+            border-radius: 20px;
+            margin-bottom: 15px;
+            border: 1px solid var(--accent);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            z-index: 1;
+        }
+
+        .controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        button {
+            padding: 14px;
+            border-radius: 12px;
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+        }
+
+        .btn-main { background: var(--gold); color: #000; grid-column: span 2; font-size: 1rem; }
+        .btn-save { background: transparent; color: var(--gold); border: 1px solid var(--gold); }
+        .btn-reset { background: transparent; color: var(--danger); border: 1px solid var(--danger); }
+        
+        button:active { transform: scale(0.96); }
+
+        #status-bar {
+            margin-top: 15px;
+            padding: 8px;
+            font-size: 0.75rem;
+            text-align: center;
+            background: rgba(0,0,0,0.3);
+            border-radius: 8px;
+            color: #94a3b8;
+        }
+
+        footer {
+            margin-top: 30px;
+            font-size: 0.8rem;
+            color: #64748b;
+            text-align: center;
+        }
+
+        .author-name {
+            color: var(--gold);
+            font-weight: 700;
+            text-shadow: 0 0 5px rgba(241, 196, 15, 0.2);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>SUA ALTEZZA</h1>
+            <div class="subtitle">Sistemi di Navigazione Reali</div>
+        </header>
+
+        <div class="grid-data">
+            <div class="card">
+                <div class="label">🛰️ Quota GPS</div>
+                <div id="gps-alt" class="value">--</div>
+                <div class="unit">metri</div>
+            </div>
+            <div class="card">
+                <div class="label">🌍 Quota Mappa</div>
+                <div id="map-alt" class="value">--</div>
+                <div class="unit">metri</div>
+            </div>
+            <div class="card">
+                <div class="label">🚀 Velocità</div>
+                <div id="speed" class="value">0</div>
+                <div class="unit">km/h</div>
+            </div>
+        </div>
+
+        <div class="instrument-panel">
+            <span id="compass-disc">🧭</span>
+            <span id="dir-text">Direzione: --</span>
+        </div>
+
+        <div id="map"></div>
+
+        <div class="controls">
+            <button class="btn-main" onclick="capturePoint()">👑 Registra Punto Corrente</button>
+            <button class="btn-save" onclick="exportJSON()">💾 Scarica JSON</button>
+            <button class="btn-reset" onclick="clearHistory()">🧹 Resetta Tutto</button>
+        </div>
+
+        <div id="status-bar">In attesa del segnale satellitare...</div>
+
+        <footer>
+            un app di <span class="author-name">Alessandro Rocca</span>
+        </footer>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <script>
+        let map, marker, history = [];
+        let currentPos = { lat: null, lon: null, alt: null };
+
+        function initApp() {
+            map = L.map('map', { zoomControl: false }).setView([41.9, 12.5], 5);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+            
+            if (navigator.geolocation) {
+                navigator.geolocation.watchPosition(updateLiveMetrics, handleError, {
+                    enableHighAccuracy: true
+                });
+            } else {
+                alert("GPS non supportato.");
+            }
+        }
+
+        function updateLiveMetrics(pos) {
+            currentPos.lat = pos.coords.latitude;
+            currentPos.lon = pos.coords.longitude;
+            currentPos.alt = pos.coords.altitude;
+
+            const speedKmH = pos.coords.speed ? (pos.coords.speed * 3.6).toFixed(0) : 0;
+            document.getElementById('speed').innerText = speedKmH;
+
+            const heading = pos.coords.heading;
+            if (heading !== null && heading !== undefined) {
+                document.getElementById('compass-disc').style.transform = `rotate(${heading}deg)`;
+                document.getElementById('dir-text').innerText = `Direzione: ${heading.toFixed(0)}°`;
+            }
+
+            const latlng = [currentPos.lat, currentPos.lon];
+            if (!marker) {
+                marker = L.marker(latlng).addTo(map);
+                map.setView(latlng, 16);
+            } else {
+                marker.setLatLng(latlng);
+            }
+            
+            document.getElementById('status-bar').innerText = "Segnale GPS attivo.";
+        }
+
+        async function capturePoint() {
+            if (!currentPos.lat) return;
+            const status = document.getElementById('status-bar');
+            status.innerText = "Registrazione in corso...";
+
+            document.getElementById('gps-alt').innerText = currentPos.alt ? currentPos.alt.toFixed(1) : "N.D.";
+
+            try {
+                const res = await fetch(`https://api.open-elevation.com/api/v1/lookup?locations=${currentPos.lat},${currentPos.lon}`);
+                const data = await res.json();
+                const elevMappa = data.results[0].elevation;
+                
+                document.getElementById('map-alt').innerText = elevMappa.toFixed(1);
+
+                history.push({
+                    timestamp: new Date().toLocaleString(),
+                    lat: currentPos.lat.toFixed(6),
+                    lon: currentPos.lon.toFixed(6),
+                    quota_gps: currentPos.alt ? currentPos.alt.toFixed(1) : "N.D.",
+                    quota_mappa: elevMappa.toFixed(1),
+                    velocita: document.getElementById('speed').innerText
+                });
+                status.innerText = `Punto salvato! (${history.length} totali)`;
+            } catch (err) {
+                status.innerText = "Errore database mappe.";
+            }
+        }
+
+        function exportJSON() {
+            if (history.length === 0) return alert("Cronologia vuota!");
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(history, null, 2));
+            const dl = document.createElement('a');
+            dl.setAttribute("href", dataStr);
+            dl.setAttribute("download", "viaggio_alessandro_rocca.json");
+            dl.click();
+        }
+
+        function clearHistory() {
+            if (confirm("Mio Signore, resettare la cronologia?")) {
+                history = [];
+                document.getElementById('status-bar').innerText = "Tabula rasa.";
+            }
+        }
+
+        function handleError(err) {
+            document.getElementById('status-bar').innerText = "Errore GPS: " + err.message;
+        }
+
+        window.onload = initApp;
+    </script>
+</body>
+</html>
