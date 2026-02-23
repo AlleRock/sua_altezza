@@ -19,29 +19,11 @@
             --accent: #d4af37;
             --danger: #ef4444;
             --tab-bg: #1e293b;
-        }
-
-        /* BLOCCO ORIZZONTALE */
-        @media screen and (orientation: landscape) {
-            #landscape-lock { display: flex !important; }
-        }
-
-        #landscape-lock {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: var(--bg);
-            z-index: 10000;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            color: var(--gold);
-            padding: 20px;
+            --success: #10b981;
         }
 
         body {
-            font-family: 'Segoe UI', system-ui, sans-serif;
+            font-family: 'Segoe UI', sans-serif;
             background: var(--bg);
             color: #fff;
             margin: 0;
@@ -50,7 +32,6 @@
             height: 100vh;
         }
 
-        /* STRUTTURA A PAGINE (TAB) */
         .page {
             display: none;
             height: calc(100vh - 70px);
@@ -62,66 +43,88 @@
 
         .page.active { display: block; }
 
-        /* PAGINA MAPPA FULL SCREEN */
         #page-map { padding: 0; position: relative; }
         #map { height: 100%; width: 100%; z-index: 1; }
 
-        /* MINI OVERLAY DATI SU MAPPA */
         .map-overlay {
             position: absolute;
             top: 10px;
             right: 10px;
             background: rgba(15, 23, 42, 0.85);
-            padding: 10px;
+            padding: 12px;
             border-radius: 12px;
             border: 1px solid var(--gold);
             z-index: 1000;
             pointer-events: none;
-            backdrop-filter: blur(4px);
         }
-        .map-overlay div { font-size: 0.85rem; font-weight: bold; color: var(--gold); margin: 2px 0; }
 
-        /* CRUSCOTTO (DASHBOARD) */
         header { text-align: center; margin-bottom: 20px; }
-        h1 { font-size: 1.8rem; margin: 0; color: var(--gold); font-family: 'Georgia', serif; letter-spacing: 1px; }
-        .subtitle { font-size: 0.6rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 2px; }
+        h1 { font-size: 1.8rem; margin: 0; color: var(--gold); font-family: 'Georgia', serif; }
 
         .grid-data {
             display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 10px;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
             margin-bottom: 20px;
         }
 
         .card {
             background: var(--card-bg);
             border: 1px solid rgba(212, 175, 55, 0.3);
-            border-radius: 12px;
-            padding: 15px 5px;
+            border-radius: 16px;
+            padding: 15px;
             text-align: center;
         }
 
-        .label { font-size: 0.6rem; color: var(--gold); font-weight: bold; margin-bottom: 5px; text-transform: uppercase; }
-        .value { font-size: 1.4rem; font-weight: 800; }
+        .label { font-size: 0.7rem; color: var(--gold); font-weight: bold; text-transform: uppercase; }
+        .value { font-size: 1.6rem; font-weight: 800; }
 
-        .instrument-panel {
-            background: var(--card-bg);
-            border-radius: 20px;
-            padding: 20px;
-            text-align: center;
-            border: 1px solid var(--accent);
-            margin-bottom: 20px;
+        /* BUSSOLA REALE */
+        .compass-container {
+            position: relative;
+            width: 180px;
+            height: 180px;
+            margin: 0 auto 20px auto;
+            background: rgba(255,255,255,0.03);
+            border-radius: 50%;
+            border: 2px solid var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
-        #compass-disc { font-size: 3rem; display: block; transition: transform 0.2s ease-out; margin-bottom: 10px; }
 
-        .controls { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        button { padding: 15px; border-radius: 12px; border: none; font-weight: bold; text-transform: uppercase; cursor: pointer; transition: 0.2s; }
-        button:active { transform: scale(0.95); }
-        .btn-main { background: var(--gold); color: #000; grid-column: span 2; font-size: 1rem; }
-        .btn-save { background: transparent; color: var(--gold); border: 1px solid var(--gold); }
-        .btn-reset { background: transparent; color: var(--danger); border: 1px solid var(--danger); }
+        #compass-rose {
+            width: 150px;
+            height: 150px;
+            transition: transform 0.1s ease-out;
+            will-change: transform;
+        }
 
-        /* BARRA DI NAVIGAZIONE IN BASSO */
+        .compass-pointer {
+            position: absolute;
+            top: -10px;
+            width: 0;
+            height: 0;
+            border-left: 10px solid transparent;
+            border-right: 10px solid transparent;
+            border-bottom: 15px solid var(--gold);
+            z-index: 10;
+        }
+
+        .degrees-display {
+            position: absolute;
+            bottom: -30px;
+            font-weight: bold;
+            color: var(--gold);
+            font-size: 1.2rem;
+        }
+
+        .controls { display: flex; flex-direction: column; gap: 10px; }
+        button { padding: 15px; border-radius: 12px; border: none; font-weight: bold; text-transform: uppercase; cursor: pointer; }
+        .btn-gpx { background: var(--success); color: #fff; }
+        .btn-reset { background: transparent; color: var(--danger); border: 1px solid var(--danger); font-size: 0.7rem; }
+        .btn-sensor { background: var(--gold); color: #000; margin-bottom: 10px; display: none; }
+
         .tab-bar {
             position: fixed;
             bottom: 0;
@@ -132,45 +135,27 @@
             justify-content: space-around;
             align-items: center;
             border-top: 1px solid rgba(255,255,255,0.1);
-            z-index: 2000;
         }
 
-        .tab-item {
-            text-align: center;
-            color: #64748b;
-            text-decoration: none;
-            font-size: 0.7rem;
-            flex: 1;
-            padding: 10px;
-        }
-
+        .tab-item { text-align: center; color: #64748b; font-size: 0.7rem; flex: 1; }
         .tab-item.active { color: var(--gold); }
-        .tab-item span { font-size: 1.6rem; display: block; margin-bottom: 4px; }
+        .tab-item span { font-size: 1.5rem; display: block; }
 
-        #status-bar { font-size: 0.7rem; color: #94a3b8; text-align: center; margin-top: 10px; min-height: 1.2em; }
+        #status-bar { font-size: 0.7rem; color: #94a3b8; text-align: center; margin-top: 10px; }
+        #gpx-input { display: none; }
     </style>
 </head>
 <body>
 
-    <div id="landscape-lock">
-        <span style="font-size: 3rem;">📱</span>
-        <p>Mio Signore, Sua Altezza predilige la visione verticale.</p>
-    </div>
-
     <div id="page-dash" class="page active">
         <header>
             <h1>SUA ALTEZZA</h1>
-            <div class="subtitle">Sistemi di Navigazione Reali</div>
         </header>
 
         <div class="grid-data">
             <div class="card">
-                <div class="label">🛰️ GPS (m)</div>
+                <div class="label">🛰️ Quota (m)</div>
                 <div id="dash-gps" class="value">--</div>
-            </div>
-            <div class="card">
-                <div class="label">🌍 MAPPA (m)</div>
-                <div id="dash-map" class="value">--</div>
             </div>
             <div class="card">
                 <div class="label">🚀 KM/H</div>
@@ -178,17 +163,27 @@
             </div>
         </div>
 
-        <div class="instrument-panel">
-            <span id="compass-disc">🧭</span>
-            <div id="dir-text" style="color:var(--gold); font-weight:bold;">Direzione: --</div>
+        <div class="compass-container">
+            <div class="compass-pointer"></div>
+            <svg id="compass-rose" viewBox="0 0 100 100">
+                <circle cx="50" cy="50" r="48" fill="none" stroke="#d4af37" stroke-width="2"/>
+                <text x="50" y="15" fill="#f1c40f" font-family="Arial" font-size="12" text-anchor="middle" font-weight="bold">N</text>
+                <text x="50" y="92" fill="#fff" font-family="Arial" font-size="10" text-anchor="middle">S</text>
+                <text x="88" y="54" fill="#fff" font-family="Arial" font-size="10" text-anchor="middle">E</text>
+                <text x="12" y="54" fill="#fff" font-family="Arial" font-size="10" text-anchor="middle">O</text>
+                <line x1="50" y1="20" x2="50" y2="80" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
+                <line x1="20" y1="50" x2="80" y2="50" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
+            </svg>
+            <div id="degrees" class="degrees-display">0°</div>
         </div>
 
         <div class="controls">
-            <button class="btn-main" onclick="capturePoint()">👑 Registra Punto</button>
-            <button class="btn-save" onclick="exportJSON()">💾 Scarica JSON</button>
-            <button class="btn-reset" onclick="clearHistory()">🧹 Resetta</button>
+            <button id="sensor-btn" class="btn-sensor" onclick="requestSensorPermission()">Attiva Bussola</button>
+            <button class="btn-gpx" onclick="document.getElementById('gpx-input').click()">🗺️ Carica GPX</button>
+            <input type="file" id="gpx-input" accept=".gpx" onchange="loadGPX(event)">
+            <button class="btn-reset" onclick="clearMap()">Rimuovi Percorso</button>
         </div>
-        <div id="status-bar">In attesa del segnale GPS...</div>
+        <div id="status-bar">Sistema pronto</div>
     </div>
 
     <div id="page-map" class="page">
@@ -209,12 +204,12 @@
     </nav>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://api.mapbox.com/mapbox.js/plugins/leaflet-omnivore/v0.3.1/leaflet-omnivore.min.js"></script>
 
     <script>
-        let map, marker, history = [];
+        let map, marker, gpxLayer;
         let currentPos = { lat: null, lon: null, alt: null };
 
-        // CONFIGURAZIONE ICONA PERSONALIZZATA (LA TUA BUSSOLA CON CORONA)
         const myIcon = L.icon({
             iconUrl: 'punto.png', 
             iconSize: [42, 42],
@@ -222,29 +217,49 @@
         });
 
         function switchPage(pageId) {
-            // Gestione classi pagine
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.getElementById('page-' + pageId).classList.add('active');
-
-            // Gestione classi tab
             document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
             document.getElementById('tab-' + pageId).classList.add('active');
+            if(pageId === 'map' && map) setTimeout(() => map.invalidateSize(), 250);
+        }
 
-            // Fix per il rendering della mappa quando si cambia tab
-            if(pageId === 'map' && map) {
-                setTimeout(() => { map.invalidateSize(); }, 250);
+        // GESTIONE BUSSOLA
+        function handleOrientation(event) {
+            let heading = event.webkitCompassHeading || (360 - event.alpha);
+            if (heading) {
+                const roundedHeading = Math.round(heading);
+                document.getElementById('compass-rose').style.transform = `rotate(${-roundedHeading}deg)`;
+                document.getElementById('degrees').innerText = roundedHeading + "°";
+            }
+        }
+
+        async function requestSensorPermission() {
+            if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+                const response = await DeviceOrientationEvent.requestPermission();
+                if (response === 'granted') {
+                    window.addEventListener('deviceorientation', handleOrientation);
+                    document.getElementById('sensor-btn').style.display = 'none';
+                }
             }
         }
 
         function initApp() {
             map = L.map('map', { zoomControl: false }).setView([41.9, 12.5], 5);
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-            
+
             if (navigator.geolocation) {
-                navigator.geolocation.watchPosition(updateLiveMetrics, handleError, { 
-                    enableHighAccuracy: true 
-                });
+                navigator.geolocation.watchPosition(updateLiveMetrics, null, { enableHighAccuracy: true });
             }
+
+            // Mostra tasto attivazione su iOS
+            if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+                document.getElementById('sensor-btn').style.display = 'block';
+            } else {
+                window.addEventListener('deviceorientation', handleOrientation);
+            }
+            
+            window.addEventListener('resize', () => map && map.invalidateSize());
         }
 
         function updateLiveMetrics(pos) {
@@ -253,87 +268,37 @@
             currentPos.alt = pos.coords.altitude;
             let speed = pos.coords.speed ? (pos.coords.speed * 3.6).toFixed(0) : 0;
 
-            // Aggiorna Dashboard
             document.getElementById('dash-speed').innerText = speed;
             document.getElementById('dash-gps').innerText = currentPos.alt ? currentPos.alt.toFixed(1) : "N.D.";
-
-            // Aggiorna Overlay Mappa
             document.getElementById('overlay-alt').innerText = `Quota: ${currentPos.alt ? currentPos.alt.toFixed(0) : '--'} m`;
             document.getElementById('overlay-speed').innerText = `Vel: ${speed} km/h`;
 
-            // Aggiorna Bussola (se disponibile)
-            if (pos.coords.heading !== null && pos.coords.heading !== undefined) {
-                document.getElementById('compass-disc').style.transform = `rotate(${pos.coords.heading}deg)`;
-                document.getElementById('dir-text').innerText = `Direzione: ${pos.coords.heading.toFixed(0)}°`;
-            }
-
-            // Aggiorna Posizione Mappa
             const latlng = [currentPos.lat, currentPos.lon];
             if (!marker) { 
                 marker = L.marker(latlng, {icon: myIcon}).addTo(map);
                 map.setView(latlng, 16); 
-            } else { 
-                marker.setLatLng(latlng); 
-            }
-            document.getElementById('status-bar').innerText = "Segnale GPS attivo";
+            } else { marker.setLatLng(latlng); }
         }
 
-        async function capturePoint() {
-            if (!currentPos.lat) return;
-            const status = document.getElementById('status-bar');
-            status.innerText = "Recupero quota mappa...";
-            
-            let elevMappa = "N.D.";
-            
-            // Tentativo doppio (Diretto + Proxy per evitare blocchi CORS)
-            const urls = [
-                `https://api.open-elevation.com/api/v1/lookup?locations=${currentPos.lat},${currentPos.lon}`,
-                `https://api.corsproxy.io/?url=` + encodeURIComponent(`https://api.open-elevation.com/api/v1/lookup?locations=${currentPos.lat},${currentPos.lon}`)
-            ];
-
-            for (let url of urls) {
-                try {
-                    const res = await fetch(url, { signal: AbortSignal.timeout(6000) });
-                    const data = await res.json();
-                    if (data.results && data.results[0]) {
-                        elevMappa = data.results[0].elevation.toFixed(1);
-                        break; 
-                    }
-                } catch (err) {}
-            }
-
-            document.getElementById('dash-map').innerText = elevMappa;
-            
-            history.push({ 
-                tempo: new Date().toLocaleTimeString(), 
-                lat: currentPos.lat.toFixed(6), 
-                lon: currentPos.lon.toFixed(6), 
-                alt_gps: currentPos.alt ? currentPos.alt.toFixed(1) : "N.D.", 
-                alt_mappa: elevMappa 
-            });
-            
-            status.innerText = `Punto registrato (${history.length})`;
+        function loadGPX(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                if (gpxLayer) map.removeLayer(gpxLayer);
+                gpxLayer = omnivore.gpx.parse(e.target.result);
+                gpxLayer.setStyle({ color: '#f1c40f', weight: 6, opacity: 0.9 });
+                gpxLayer.addTo(map);
+                gpxLayer.on('ready', () => {
+                    map.fitBounds(gpxLayer.getBounds());
+                    switchPage('map');
+                });
+            };
+            reader.readAsText(file);
         }
 
-        function exportJSON() {
-            if (history.length === 0) return alert("Nessun punto registrato!");
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(history, null, 2));
-            const dl = document.createElement('a');
-            dl.setAttribute("href", dataStr);
-            dl.setAttribute("download", "viaggio_alessandro.json");
-            dl.click();
-        }
-
-        function clearHistory() { 
-            if (confirm("Resettare la cronologia?")) {
-                history = []; 
-                document.getElementById('status-bar').innerText = "Cronologia pulita.";
-                document.getElementById('dash-map').innerText = "--";
-            }
-        }
-
-        function handleError(err) {
-            document.getElementById('status-bar').innerText = "Errore GPS: Segnale debole";
+        function clearMap() {
+            if (gpxLayer) { map.removeLayer(gpxLayer); gpxLayer = null; }
         }
 
         window.onload = initApp;
