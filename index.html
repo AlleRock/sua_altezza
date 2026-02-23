@@ -5,14 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Sua Altezza - Navigator Pro</title>
 
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700;900&family=Barlow+Condensed:wght@600;800&display=swap" rel="stylesheet">
-
-    <link rel="apple-touch-icon" href="icona.png">
-    <link rel="icon" type="image/png" href="icona.png">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Barlow+Condensed:wght@600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
     <style>
         :root {
             --gold: #f1c40f;
@@ -28,8 +23,7 @@
             font-family: 'Inter', sans-serif;
             background: var(--bg);
             color: #fff;
-            margin: 0;
-            padding: 0;
+            margin: 0; padding: 0;
             overflow: hidden;
             height: 100vh;
         }
@@ -46,38 +40,11 @@
         .page.active { display: block; }
 
         #page-map { padding: 0; position: relative; }
-        #map { height: 100%; width: 100%; z-index: 1; transition: transform 0.5s ease; }
-        
-        /* EFFETTO SIMIL-3D */
-        .map-3d-view #map {
-            transform: perspective(600px) rotateX(30deg) scale(1.1);
-            transform-origin: bottom center;
-        }
+        #map { height: 100%; width: 100%; z-index: 1; background: #000; }
 
-        .map-overlay {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: rgba(0, 0, 0, 0.8);
-            padding: 15px;
-            border-radius: 15px;
-            border-left: 4px solid var(--gold);
-            z-index: 1000;
-            backdrop-filter: blur(10px);
-            pointer-events: none;
-        }
-        .map-overlay div { font-family: 'Barlow Condensed'; font-size: 1rem; color: #fff; margin: 2px 0; }
-        .map-overlay .alt-val { color: var(--gold); font-weight: 800; font-size: 1.2rem; }
-
-        header { text-align: center; margin-bottom: 25px; }
-        h1 { 
-            font-weight: 900; 
-            font-size: 1.8rem; 
-            margin: 0; 
-            color: var(--gold); 
-            letter-spacing: -1px;
-            text-transform: uppercase;
-        }
+        header { text-align: center; margin-bottom: 20px; }
+        h1 { font-weight: 900; font-size: 1.8rem; margin: 0; color: var(--gold); text-transform: uppercase; }
+        .subtitle { font-size: 0.7rem; letter-spacing: 2px; color: #64748b; text-transform: uppercase; margin-top: 5px; }
 
         .grid-data {
             display: grid;
@@ -89,20 +56,20 @@
         .card {
             background: var(--card-bg);
             border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 24px;
-            padding: 20px 10px;
+            border-radius: 20px;
+            padding: 15px;
             text-align: center;
         }
 
-        .label { font-size: 0.7rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; }
-        .value { font-family: 'Barlow Condensed'; font-size: 2.2rem; font-weight: 800; line-height: 1; }
+        .label { font-size: 0.65rem; color: #64748b; font-weight: 700; text-transform: uppercase; margin-bottom: 5px; }
+        .value { font-family: 'Barlow Condensed'; font-size: 2rem; font-weight: 800; }
 
-        /* BUSSOLA RE-DESIGNED */
+        /* BUSSOLA DINAMICA */
         .compass-area {
             position: relative;
             width: 220px;
             height: 220px;
-            margin: 0 auto 30px auto;
+            margin: 0 auto 25px auto;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -118,8 +85,8 @@
         }
 
         #compass-rose {
-            width: 90%;
-            height: 90%;
+            width: 85%;
+            height: 85%;
             transition: transform 0.1s linear;
             z-index: 2;
         }
@@ -127,11 +94,11 @@
         .fixed-pointer {
             position: absolute;
             top: -5px;
-            width: 3px;
-            height: 30px;
+            width: 4px;
+            height: 25px;
             background: var(--gold);
             z-index: 10;
-            box-shadow: 0 0 10px var(--gold);
+            box-shadow: 0 0 10px rgba(241, 196, 15, 0.5);
         }
 
         .degrees-display {
@@ -140,33 +107,49 @@
             font-size: 1.8rem;
             font-weight: 800;
             color: #fff;
-            z-index: 10;
+            text-shadow: 0 0 10px rgba(0,0,0,0.5);
         }
 
         /* CONTROLLI */
         .controls { display: flex; flex-direction: column; gap: 12px; }
         button { 
-            font-family: 'Inter'; font-weight: 700; padding: 18px; 
-            border-radius: 20px; border: none; text-transform: uppercase; font-size: 0.85rem; 
+            font-family: 'Inter'; font-weight: 700; padding: 16px; 
+            border-radius: 15px; border: none; text-transform: uppercase; font-size: 0.8rem; cursor: pointer;
         }
 
+        .btn-sensor { background: var(--gold); color: #000; animation: pulse 2s infinite; }
         .btn-gpx { background: #fff; color: #000; }
         .btn-reset { background: transparent; color: var(--danger); border: 1px solid var(--danger); }
-        .btn-3d { 
-            position: absolute; bottom: 90px; left: 20px; z-index: 1000;
-            background: rgba(0,0,0,0.8); color: var(--gold); border: 1px solid var(--gold);
-            padding: 10px; width: 50px; height: 50px; border-radius: 50%;
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(241, 196, 15, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(241, 196, 15, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(241, 196, 15, 0); }
         }
 
-        .footer-credit { text-align: center; font-size: 0.65rem; color: #4b5563; margin-top: 25px; }
+        .footer-credit { text-align: center; font-size: 0.6rem; color: #4b5563; margin-top: 20px; }
         .footer-credit b { color: var(--gold); }
+
+        /* MAP OVERLAY */
+        .map-overlay {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.85);
+            padding: 12px;
+            border-radius: 12px;
+            border-right: 4px solid var(--gold);
+            z-index: 1000;
+            pointer-events: none;
+        }
+        .map-overlay div { font-family: 'Barlow Condensed'; font-size: 1rem; }
 
         .tab-bar {
             position: fixed; bottom: 0; width: 100%; height: 70px;
             background: var(--tab-bg); display: flex; align-items: center; z-index: 2000;
         }
 
-        .tab-item { text-align: center; color: #4b5563; flex: 1; font-size: 0.7rem; font-weight: 700; }
+        .tab-item { text-align: center; color: #4b5563; flex: 1; font-size: 0.7rem; }
         .tab-item.active { color: var(--gold); }
         .tab-item span { font-size: 1.5rem; display: block; }
 
@@ -178,15 +161,16 @@
     <div id="page-dash" class="page active">
         <header>
             <h1>SUA ALTEZZA</h1>
+            <div class="subtitle">Sistemi di Navigazione Reali</div>
         </header>
 
         <div class="grid-data">
             <div class="card">
-                <div class="label">Quota (m)</div>
+                <div class="label">Altezza (m)</div>
                 <div id="dash-gps" class="value">--</div>
             </div>
             <div class="card">
-                <div class="label">Speed (km/h)</div>
+                <div class="label">Velocità (km/h)</div>
                 <div id="dash-speed" class="value">0</div>
             </div>
         </div>
@@ -195,28 +179,28 @@
             <div class="compass-housing"></div>
             <div class="fixed-pointer"></div>
             <svg id="compass-rose" viewBox="0 0 200 200">
-                <g id="ticks" stroke="rgba(255,255,255,0.2)" stroke-width="1"></g>
-                <text x="100" y="30" fill="#f1c40f" font-family="Barlow Condensed" font-size="24" text-anchor="middle" font-weight="800">N</text>
-                <text x="100" y="185" fill="#fff" font-family="Barlow Condensed" font-size="16" text-anchor="middle">S</text>
-                <text x="180" y="106" fill="#fff" font-family="Barlow Condensed" font-size="16" text-anchor="middle">E</text>
-                <text x="20" y="106" fill="#fff" font-family="Barlow Condensed" font-size="16" text-anchor="middle">O</text>
+                <g id="ticks" stroke="rgba(255,255,255,0.2)" stroke-width="1.5"></g>
+                <text x="100" y="32" fill="#f1c40f" font-family="Barlow Condensed" font-size="26" text-anchor="middle" font-weight="800">N</text>
+                <text x="100" y="185" fill="#fff" font-family="Barlow Condensed" font-size="18" text-anchor="middle">S</text>
+                <text x="175" y="108" fill="#fff" font-family="Barlow Condensed" font-size="18" text-anchor="middle">E</text>
+                <text x="25" y="108" fill="#fff" font-family="Barlow Condensed" font-size="18" text-anchor="middle">O</text>
             </svg>
             <div id="degrees" class="degrees-display">0°</div>
         </div>
 
         <div class="controls">
+            <button id="sensor-btn" class="btn-sensor" onclick="requestSensorPermission()">Calibra Bussola</button>
             <button class="btn-gpx" onclick="document.getElementById('gpx-input').click()">Carica Percorso GPX</button>
             <input type="file" id="gpx-input" accept=".gpx" onchange="loadGPX(event)">
-            <button class="btn-reset" onclick="clearMap()">Rimuovi Traccia</button>
+            <button class="btn-reset" onclick="clearMap()">Rimuovi Percorso</button>
         </div>
 
         <div class="footer-credit">Designed by <b>Mem Software</b></div>
     </div>
 
     <div id="page-map" class="page">
-        <button class="btn-3d" onclick="toggle3D()">3D</button>
         <div class="map-overlay">
-            <div class="alt-val" id="overlay-alt">-- m</div>
+            <div style="color:var(--gold); font-weight:800" id="overlay-alt">-- m</div>
             <div id="overlay-speed">0 km/h</div>
         </div>
         <div id="map"></div>
@@ -236,13 +220,16 @@
 
     <script>
         let map, marker, gpxLayer;
-        let is3D = false;
         let currentPos = { lat: null, lon: null, alt: null };
 
-        // Provider Mappe
+        // PROVIDER MAPPE MIGLIORATI
         const street = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png');
-        const satellite = L.tileLayer('https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}'); // Google Hybrid (Molto stabile)
-        const topo = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png');
+        const satellite = L.tileLayer('https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}');
+        
+        // Mappa Landscape con curve di livello e rilievi spettacolari
+        const landscape = L.tileLayer('https://{s}.tile.thunderforest.com/landscape/{z}/{x}/{y}.png?apikey=hike', {
+            attribution: '© Thunderforest'
+        });
 
         const myIcon = L.icon({
             iconUrl: 'punto.png', 
@@ -250,29 +237,30 @@
             iconAnchor: [20, 20]
         });
 
-        function toggle3D() {
-            is3D = !is3D;
-            document.getElementById('page-map').classList.toggle('map-3d-view');
-            setTimeout(() => map.invalidateSize(), 500);
-        }
-
         function initApp() {
             map = L.map('map', { zoomControl: false, layers: [street] }).setView([41.9, 12.5], 5);
-            L.control.layers({"Mappa": street, "Satellite": satellite, "Rilievi": topo}, null, {position: 'topleft'}).addTo(map);
+            L.control.layers({"Stradale": street, "Satellite": satellite, "Rilievi/Outdoor": landscape}, null, {position: 'topleft'}).addTo(map);
 
             if (navigator.geolocation) {
                 navigator.geolocation.watchPosition(updateLiveMetrics, null, { enableHighAccuracy: true });
             }
-            window.addEventListener('deviceorientation', handleOrientation);
-            window.addEventListener('resize', () => map && map.invalidateSize());
+
+            // Controllo se serve il tasto bussola (iOS)
+            if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+                document.getElementById('sensor-btn').style.display = 'block';
+            } else {
+                window.addEventListener('deviceorientation', handleOrientation);
+                document.getElementById('sensor-btn').style.display = 'none';
+            }
         }
 
-        // DISEGNO TICKS
+        // GENERAZIONE TICKS BUSSOLA
         const ticksGroup = document.getElementById('ticks');
         for (let i = 0; i < 360; i += 10) {
             const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
-            line.setAttribute("x1", "100"); line.setAttribute("y1", "10");
-            line.setAttribute("x2", "100"); line.setAttribute("y2", i % 30 === 0 ? "25" : "18");
+            const isMain = i % 30 === 0;
+            line.setAttribute("x1", "100"); line.setAttribute("y1", "12");
+            line.setAttribute("x2", "100"); line.setAttribute("y2", isMain ? "28" : "20");
             line.setAttribute("transform", `rotate(${i} 100 100)`);
             ticksGroup.appendChild(line);
         }
@@ -285,11 +273,22 @@
             if(p === 'map') setTimeout(() => map.invalidateSize(), 200);
         }
 
+        async function requestSensorPermission() {
+            if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+                const permission = await DeviceOrientationEvent.requestPermission();
+                if (permission === 'granted') {
+                    window.addEventListener('deviceorientation', handleOrientation);
+                    document.getElementById('sensor-btn').style.display = 'none';
+                }
+            }
+        }
+
         function handleOrientation(e) {
             let h = e.webkitCompassHeading || (360 - e.alpha);
             if(h) {
-                document.getElementById('compass-rose').style.transform = `rotate(${-h}deg)`;
-                document.getElementById('degrees').innerText = Math.round(h) + "°";
+                const rh = Math.round(h);
+                document.getElementById('compass-rose').style.transform = `rotate(${-rh}deg)`;
+                document.getElementById('degrees').innerText = rh + "°";
             }
         }
 
@@ -316,9 +315,12 @@
             reader.onload = function(e) {
                 if (gpxLayer) map.removeLayer(gpxLayer);
                 gpxLayer = omnivore.gpx.parse(e.target.result);
-                gpxLayer.setStyle({ color: '#f1c40f', weight: 5 });
+                gpxLayer.setStyle({ color: '#f1c40f', weight: 5, opacity: 0.8 });
                 gpxLayer.addTo(map);
-                gpxLayer.on('ready', () => { map.fitBounds(gpxLayer.getBounds()); switchPage('map'); });
+                gpxLayer.on('ready', () => { 
+                    map.fitBounds(gpxLayer.getBounds()); 
+                    switchPage('map'); 
+                });
             };
             reader.readAsText(file);
         }
