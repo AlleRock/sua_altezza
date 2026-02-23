@@ -13,108 +13,53 @@
 
     <style>
         :root {
-            --gold: #f1c40f;
-            --bg: #0b0f1a;
-            --card-bg: rgba(255, 255, 255, 0.08);
-            --danger: #ff4757;
-            --success: #2ecc71;
-            --tab-bg: #161b2a;
+            --gold: #f1c40f; --bg: #0b0f1a; --card-bg: rgba(255, 255, 255, 0.08);
+            --danger: #ff4757; --success: #2ecc71; --tab-bg: #161b2a; --text: #ffffff;
+            --breadcrumb: #00d2ff;
         }
 
-        body {
-            font-family: 'Inter', sans-serif;
-            background: var(--bg);
-            color: #fff;
-            margin: 0; padding: 0;
-            overflow: hidden;
-            height: 100vh;
-        }
+        body.night-mode { --gold: #e74c3c; --bg: #1a0000; --card-bg: rgba(255, 0, 0, 0.05); --tab-bg: #0d0000; --text: #ff4444; }
 
-        .page {
-            display: none;
-            height: calc(100vh - 75px);
-            width: 100%;
-            padding: 15px;
-            box-sizing: border-box;
-            overflow-y: auto;
-        }
-
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 0; overflow: hidden; height: 100vh; }
+        .page { display: none; height: calc(100vh - 75px); width: 100%; padding: 15px; box-sizing: border-box; overflow-y: auto; }
         .page.active { display: block; }
 
         #page-map { padding: 0; position: relative; }
         #map { height: 100%; width: 100%; z-index: 1; background: #000; }
 
-        header { text-align: center; margin-bottom: 5px; }
+        header { text-align: center; }
         h1 { font-weight: 900; font-size: 1.8rem; margin: 0; color: var(--gold); text-transform: uppercase; }
-        .subtitle { font-size: 0.65rem; letter-spacing: 2px; color: #64748b; text-transform: uppercase; margin-top: 2px; margin-bottom: 10px; }
+        .subtitle { font-size: 0.65rem; letter-spacing: 2px; color: #64748b; text-transform: uppercase; margin-bottom: 10px; }
         
-        .mem-brand {
-            text-align: center;
-            font-size: 0.7rem;
-            letter-spacing: 2px;
-            color: rgba(255,255,255,0.5);
-            text-transform: uppercase;
-            margin-bottom: 15px;
-        }
+        .mem-brand { text-align: center; font-size: 0.7rem; color: rgba(255,255,255,0.3); text-transform: uppercase; margin-bottom: 15px; }
         .mem-brand b { color: var(--gold); }
 
-        .card {
-            background: var(--card-bg);
-            border: 2px solid var(--gold);
-            border-radius: 20px;
-            padding: 15px;
-            text-align: center;
-            margin-bottom: 15px;
-        }
+        .card { background: var(--card-bg); border: 2px solid var(--gold); border-radius: 20px; padding: 15px; text-align: center; margin-bottom: 15px; }
+        .value { font-family: 'Barlow Condensed'; font-size: 3rem; font-weight: 800; line-height: 1; }
 
-        .label { font-size: 0.7rem; color: #64748b; font-weight: 700; text-transform: uppercase; }
-        .value { font-family: 'Barlow Condensed'; font-size: 3rem; font-weight: 800; color: #fff; line-height: 1; }
-
-        .compass-area {
-            position: relative; width: 180px; height: 180px;
-            margin: 0 auto 20px auto;
-            display: flex; align-items: center; justify-content: center;
-        }
-
-        .compass-housing {
-            position: absolute; width: 100%; height: 100%;
-            border-radius: 50%; border: 2px solid rgba(255,255,255,0.1);
-            background: radial-gradient(circle, #1a1f2e 0%, #0b0f1a 100%);
-        }
-
+        .compass-area { position: relative; width: 160px; height: 160px; margin: 0 auto 15px auto; display: flex; align-items: center; justify-content: center; }
+        .compass-housing { position: absolute; width: 100%; height: 100%; border-radius: 50%; border: 2px solid rgba(255,255,255,0.1); background: radial-gradient(circle, #1a1f2e 0%, #0b0f1a 100%); }
         #compass-rose { width: 85%; height: 85%; transition: transform 0.1s linear; z-index: 2; }
-        .fixed-pointer { position: absolute; top: -5px; width: 4px; height: 25px; background: var(--gold); z-index: 10; }
-        .degrees-display { position: absolute; font-family: 'Barlow Condensed'; font-size: 1.8rem; font-weight: 800; }
+        .fixed-pointer { position: absolute; top: -5px; width: 4px; height: 20px; background: var(--gold); z-index: 10; }
+        .degrees-display { position: absolute; font-family: 'Barlow Condensed'; font-size: 1.5rem; font-weight: 800; }
 
-        #download-box { 
-            display: none; background: rgba(46, 204, 113, 0.1); padding: 12px; border-radius: 12px; margin-bottom: 15px; border: 1px dashed var(--success);
-        }
+        #download-box { display: none; background: rgba(46, 204, 113, 0.1); padding: 12px; border-radius: 12px; margin-bottom: 15px; border: 1px dashed var(--success); }
         .progress-bg { width: 100%; height: 10px; background: #333; border-radius: 5px; overflow: hidden; margin: 8px 0; }
         #progress-bar { width: 0%; height: 100%; background: var(--success); transition: width 0.1s; }
         #status-text { font-size: 0.75rem; color: var(--success); font-weight: 700; text-align: center; }
 
-        .controls { display: flex; flex-direction: column; gap: 10px; padding-bottom: 20px; }
-        button { 
-            font-family: 'Inter'; font-weight: 700; padding: 15px; 
-            border-radius: 12px; border: none; text-transform: uppercase; cursor: pointer; font-size: 0.85rem;
-        }
+        button { font-family: 'Inter'; font-weight: 700; border-radius: 12px; border: none; text-transform: uppercase; cursor: pointer; }
+        .btn-sensor { background: var(--gold); color: #000; width: 100%; padding: 15px; margin-bottom: 10px; font-size: 0.85rem; }
+        .btn-main { background: #fff; color: #000; width: 100%; padding: 15px; font-size: 0.85rem; margin-bottom: 10px; }
+        .btn-tools-toggle { background: #1e272e; color: var(--gold); border: 1px solid var(--gold); width: 100%; padding: 15px; font-size: 0.85rem; margin-bottom: 10px; }
+        .btn-offline { background: var(--success); color: #000; width: 100%; padding: 15px; font-size: 0.85rem; margin-bottom: 10px; }
+        
+        #tools-panel { position: fixed; bottom: 85px; left: 15px; right: 15px; background: var(--tab-bg); border: 2px solid var(--gold); border-radius: 20px; padding: 20px; display: none; z-index: 3000; }
 
-        .btn-sensor { background: var(--gold); color: #000; }
-        .btn-gpx { background: #fff; color: #000; }
-        #btn-offline { background: #1e272e; color: #fff; display: none; border: 2px solid var(--success); }
-        .btn-reset { background: transparent; color: var(--danger); border: 1px solid var(--danger); }
-
-        .tab-bar {
-            position: fixed; bottom: 0; width: 100%; height: 75px;
-            background: var(--tab-bg); display: flex; align-items: center; z-index: 2000;
-            border-top: 1px solid rgba(255,255,255,0.05);
-        }
-
+        .tab-bar { position: fixed; bottom: 0; width: 100%; height: 75px; background: var(--tab-bg); display: flex; align-items: center; z-index: 2000; border-top: 1px solid rgba(255,255,255,0.05); }
         .tab-item { text-align: center; color: #4b5563; flex: 1; font-size: 0.7rem; font-weight: 700; }
         .tab-item.active { color: var(--gold); }
-        .tab-item span { font-size: 1.5rem; display: block; margin-bottom: 2px; }
-
-        #gpx-input { display: none; }
+        .tab-item span { font-size: 1.5rem; display: block; }
     </style>
 </head>
 <body>
@@ -127,7 +72,7 @@
         <div class="mem-brand">Designed by <b>Mem Software</b></div>
 
         <div class="card">
-            <div class="label">Quota Attuale (m)</div>
+            <div style="font-size:0.7rem; color:#64748b; font-weight:700; text-transform: uppercase;">Quota Attuale (m)</div>
             <div id="dash-gps" class="value">--</div>
         </div>
 
@@ -145,17 +90,22 @@
         </div>
 
         <div id="download-box">
-            <div id="status-text">Pronto...</div>
+            <div id="status-text">Inizializzazione...</div>
             <div class="progress-bg"><div id="progress-bar"></div></div>
         </div>
 
-        <div class="controls">
-            <button id="sensor-btn" class="btn-sensor" onclick="requestSensorPermission()">Calibra Bussola</button>
-            <button class="btn-gpx" onclick="document.getElementById('gpx-input').click()">Carica Percorso GPX</button>
-            <button id="btn-offline" class="btn-offline" onclick="downloadMapArea()">Scarica Mappa Offline</button>
-            <input type="file" id="gpx-input" accept=".gpx" onchange="handleFileSelect(event)">
-            <button class="btn-reset" onclick="clearAllData()">Resetta App</button>
-        </div>
+        <button id="sensor-btn" class="btn-sensor" onclick="requestSensorPermission()">Calibra Sensori</button>
+        <button class="btn-tools-toggle" onclick="toggleTools()">🛠️ STRUMENTI AVANZATI</button>
+        <button class="btn-main" onclick="document.getElementById('gpx-input').click()">🗺️ CARICA SENTIERO GPX</button>
+        <button class="btn-offline" onclick="downloadMapArea()">💾 SALVA MAPPA OFFLINE</button>
+        
+        <input type="file" id="gpx-input" style="display:none" accept=".gpx" onchange="handleFileSelect(event)">
+    </div>
+
+    <div id="tools-panel">
+        <button class="btn-main" style="background:var(--danger); color:#fff;" onclick="clearBreadcrumbs()">🗑️ CANCELLA MIA TRACCIA</button>
+        <button class="btn-main" style="background:var(--tab-bg); color:var(--gold); border:1px solid var(--gold)" onclick="toggleNightMode()">🌙 NIGHT MODE</button>
+        <button class="btn-main" style="background:#333; color:#fff;" onclick="toggleTools()">CHIUDI</button>
     </div>
 
     <div id="page-map" class="page">
@@ -171,77 +121,69 @@
     <script src="https://api.mapbox.com/mapbox.js/plugins/leaflet-omnivore/v0.3.1/leaflet-omnivore.min.js"></script>
 
     <script>
-        const CACHE_NAME = 'sua-altezza-v12';
-        if ('serviceWorker' in navigator) {
-            const swBlob = new Blob([`
-                self.addEventListener('install', e => e.waitUntil(caches.open('${CACHE_NAME}').then(c => c.addAll(['./']))));
-                self.addEventListener('fetch', e => e.respondWith(caches.match(e.request).then(r => r || fetch(e.request))));
-            `], {type: 'application/javascript'});
-            navigator.serviceWorker.register(URL.createObjectURL(swBlob));
-        }
-
-        let map, marker, gpxLayer;
-        const MAP_TILE_CACHE = 'map-tiles-v12';
-
-        const street = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png');
-        const topo = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', { maxZoom: 17 });
-        const satellite = L.tileLayer('https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}');
+        let map, marker, gpxLayer, breadcrumbLayer;
+        let myHistory = [];
+        const MAP_CACHE = 'map-tiles-v30';
+        const MY_ROYAL_ICON = "https://raw.githubusercontent.com/AlleRock/sua_altezza/main/punto.png";
 
         function initApp() {
-            map = L.map('map', { zoomControl: false, layers: [topo] }).setView([41.9, 12.5], 5);
-            L.control.layers({"Rilievi": topo, "Satellite": satellite, "Stradale": street}, null, { position: 'topleft' }).addTo(map);
+            map = L.map('map', { zoomControl: false }).setView([41.9, 12.5], 5);
             
-            const savedGPX = localStorage.getItem('saved_path_json');
-            if (savedGPX) {
-                renderGPX(savedGPX);
-                document.getElementById('btn-offline').style.display = 'block';
+            // PREDEFINITA: Stradale
+            const street = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+            const satellite = L.tileLayer('https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}');
+            const topo = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png');
+
+            L.control.layers({
+                "Stradale": street,
+                "Satellite": satellite,
+                "Rilievi": topo
+            }, null, { position: 'topleft' }).addTo(map);
+
+            breadcrumbLayer = L.polyline([], {color: '#00d2ff', weight: 4, dashArray: '5, 8'}).addTo(map);
+
+            const savedHistory = localStorage.getItem('my_breadcrumb_json');
+            if (savedHistory) {
+                myHistory = JSON.parse(savedHistory);
+                breadcrumbLayer.setLatLngs(myHistory);
             }
+
+            const savedGPX = localStorage.getItem('saved_path_json');
+            if (savedGPX) renderGPX(savedGPX);
 
             if (navigator.geolocation) {
-                navigator.geolocation.watchPosition(updateLiveMetrics, null, { enableHighAccuracy: true });
+                navigator.geolocation.watchPosition(updatePosition, null, { enableHighAccuracy: true });
             }
         }
 
-        function handleFileSelect(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const content = e.target.result;
-                localStorage.setItem('saved_path_json', content);
-                renderGPX(content);
-                document.getElementById('btn-offline').style.display = 'block';
-            };
-            reader.readAsText(file);
-        }
+        function updatePosition(pos) {
+            const latlng = [pos.coords.latitude, pos.coords.longitude];
+            document.getElementById('dash-gps').innerText = pos.coords.altitude ? pos.coords.altitude.toFixed(0) : "--";
 
-        function renderGPX(data) {
-            if (gpxLayer) map.removeLayer(gpxLayer);
-            gpxLayer = omnivore.gpx.parse(data);
-            gpxLayer.setStyle({ color: '#f1c40f', weight: 5 });
-            gpxLayer.addTo(map);
-            gpxLayer.on('ready', () => { map.fitBounds(gpxLayer.getBounds()); });
-        }
+            if (!marker) {
+                marker = L.marker(latlng, { icon: L.icon({ iconUrl: MY_ROYAL_ICON, iconSize: [50, 50], iconAnchor: [25, 25] }) }).addTo(map);
+                map.setView(latlng, 16);
+            } else { marker.setLatLng(latlng); }
 
-        // RESET TOTALE: SVUOTA MEMORIA JSON E LOCALSTORAGE
-        function clearAllData() {
-            if(confirm("Attenzione: questo cancellerà il percorso e tutti i dati salvati. Procedere?")) {
-                localStorage.clear(); 
-                location.reload();
+            if (myHistory.length === 0 || map.distance(latlng, myHistory[myHistory.length - 1]) > 5) {
+                myHistory.push(latlng);
+                breadcrumbLayer.setLatLngs(myHistory);
+                localStorage.setItem('my_breadcrumb_json', JSON.stringify(myHistory));
             }
         }
 
         async function downloadMapArea() {
-            if (!gpxLayer) return;
-            const btn = document.getElementById('btn-offline');
+            if (!gpxLayer) return alert("Carica un GPX prima!");
             const box = document.getElementById('download-box');
             const bar = document.getElementById('progress-bar');
             const status = document.getElementById('status-text');
-            box.style.display = 'block'; btn.style.display = 'none';
+            box.style.display = 'block';
+            
             const bounds = gpxLayer.getBounds();
-            const cache = await caches.open(MAP_TILE_CACHE);
-            const zooms = [13, 14, 15]; 
+            const cache = await caches.open(MAP_CACHE);
+            const zooms = [14, 15, 16]; 
             let urls = [];
+
             zooms.forEach(z => {
                 const nw = map.project(bounds.getNorthWest(), z).divideBy(256).floor();
                 const se = map.project(bounds.getSouthEast(), z).divideBy(256).floor();
@@ -251,6 +193,7 @@
                     }
                 }
             });
+
             let count = 0;
             for (const url of urls) {
                 try {
@@ -260,41 +203,55 @@
                 count++;
                 let p = Math.round((count / urls.length) * 100);
                 bar.style.width = p + "%";
-                status.innerText = `DOWNLOAD: ${p}%`;
+                status.innerText = `SCARICAMENTO: ${p}%`;
             }
-            status.innerText = "OFFLINE PRONTO ✓";
+            status.innerText = "OFFLINE COMPLETATO ✓";
+            setTimeout(() => box.style.display = 'none', 3000);
         }
 
-        function updateLiveMetrics(pos) {
-            const alt = pos.coords.altitude ? pos.coords.altitude.toFixed(0) : "--";
-            document.getElementById('dash-gps').innerText = alt;
-            const latlng = [pos.coords.latitude, pos.coords.longitude];
-            if (!marker) { 
-                marker = L.marker(latlng, {icon: L.icon({iconUrl: 'punto.png', iconSize: [40, 40], iconAnchor: [20, 20]})}).addTo(map);
-                map.setView(latlng, 16); 
-            } else { marker.setLatLng(latlng); }
+        function handleFileSelect(e) {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                localStorage.setItem('saved_path_json', event.target.result);
+                renderGPX(event.target.result);
+            };
+            reader.readAsText(e.target.files[0]);
         }
 
-        const ticksGroup = document.getElementById('ticks');
-        for (let i = 0; i < 360; i += 10) {
-            const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
-            line.setAttribute("x1", "100"); line.setAttribute("y1", "12");
-            line.setAttribute("x2", "100"); line.setAttribute("y2", i % 30 === 0 ? "28" : "20");
-            line.setAttribute("transform", `rotate(${i} 100 100)`);
-            ticksGroup.appendChild(line);
+        function renderGPX(data) {
+            if (gpxLayer) map.removeLayer(gpxLayer);
+            gpxLayer = omnivore.gpx.parse(data);
+            gpxLayer.setStyle({ color: '#f1c40f', weight: 5 }).addTo(map);
+            gpxLayer.on('ready', () => { if(myHistory.length === 0) map.fitBounds(gpxLayer.getBounds()); });
         }
 
-        async function requestSensorPermission() {
+        function clearBreadcrumbs() {
+            if(confirm("Cancellare la tua traccia attuale?")) {
+                myHistory = [];
+                breadcrumbLayer.setLatLngs([]);
+                localStorage.removeItem('my_breadcrumb_json');
+                toggleTools();
+            }
+        }
+
+        function toggleTools() {
+            const p = document.getElementById('tools-panel');
+            p.style.display = p.style.display === 'block' ? 'none' : 'block';
+        }
+
+        function toggleNightMode() { document.body.classList.toggle('night-mode'); }
+
+        function requestSensorPermission() {
             if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
-                const permission = await DeviceOrientationEvent.requestPermission();
-                if (permission === 'granted') window.addEventListener('deviceorientation', handleOrientation);
-            } else { window.addEventListener('deviceorientation', handleOrientation); }
-            document.getElementById('sensor-btn').innerText = "Bussola OK";
+                DeviceOrientationEvent.requestPermission().then(reg => { if (reg === 'granted') window.addEventListener('deviceorientation', hOrient); });
+            } else { window.addEventListener('deviceorientation', hOrient); }
+            document.getElementById('sensor-btn').style.background = "var(--success)";
+            document.getElementById('sensor-btn').innerText = "SENSORI OK ✓";
         }
 
-        function handleOrientation(e) {
+        function hOrient(e) {
             let h = e.webkitCompassHeading || (360 - e.alpha);
-            if(h !== undefined) {
+            if(h) {
                 document.getElementById('compass-rose').style.transform = `rotate(${-Math.round(h)}deg)`;
                 document.getElementById('degrees').innerText = Math.round(h) + "°";
             }
@@ -306,6 +263,15 @@
             document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
             document.getElementById('tab-' + p).classList.add('active');
             if(p === 'map') setTimeout(() => map.invalidateSize(), 300);
+        }
+
+        const ticksGroup = document.getElementById('ticks');
+        for (let i = 0; i < 360; i += 10) {
+            const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+            line.setAttribute("x1", "100"); line.setAttribute("y1", "12");
+            line.setAttribute("x2", "100"); line.setAttribute("y2", i % 30 === 0 ? "25" : "18");
+            line.setAttribute("transform", `rotate(${i} 100 100)`);
+            ticksGroup.appendChild(line);
         }
         window.onload = initApp;
     </script>
