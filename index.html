@@ -2,7 +2,7 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Sua Altezza - Navigator Pro</title>
 
     <link rel="apple-touch-icon" href="icona.png">
@@ -18,6 +18,26 @@
             --card-bg: rgba(255, 255, 255, 0.07);
             --accent: #d4af37;
             --danger: #ef4444;
+            --tab-bg: #1e293b;
+        }
+
+        /* BLOCCO ORIZZONTALE */
+        @media screen and (orientation: landscape) {
+            #landscape-lock { display: flex !important; }
+        }
+
+        #landscape-lock {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--bg);
+            z-index: 10000;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            color: var(--gold);
+            padding: 20px;
         }
 
         body {
@@ -25,106 +45,119 @@
             background: var(--bg);
             color: #fff;
             margin: 0;
+            padding: 0;
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        /* STRUTTURA A PAGINE (TAB) */
+        .page {
+            display: none;
+            height: calc(100vh - 70px);
+            width: 100%;
+            padding: 20px;
+            box-sizing: border-box;
+            overflow-y: auto;
+        }
+
+        .page.active { display: block; }
+
+        /* PAGINA MAPPA FULL SCREEN */
+        #page-map { padding: 0; position: relative; }
+        #map { height: 100%; width: 100%; z-index: 1; }
+
+        /* MINI OVERLAY DATI SU MAPPA */
+        .map-overlay {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(15, 23, 42, 0.85);
             padding: 10px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
+            border-radius: 12px;
+            border: 1px solid var(--gold);
+            z-index: 1000;
+            pointer-events: none;
+            backdrop-filter: blur(4px);
         }
+        .map-overlay div { font-size: 0.85rem; font-weight: bold; color: var(--gold); margin: 2px 0; }
 
-        .container { width: 100%; max-width: 500px; padding-bottom: 40px; }
-
-        header { text-align: center; margin: 15px 0; }
-        h1 { 
-            font-size: 2rem; 
-            margin: 0; 
-            color: var(--gold);
-            font-family: 'Georgia', serif;
-        }
-        .subtitle { font-size: 0.7rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 2px; }
+        /* CRUSCOTTO (DASHBOARD) */
+        header { text-align: center; margin-bottom: 20px; }
+        h1 { font-size: 1.8rem; margin: 0; color: var(--gold); font-family: 'Georgia', serif; letter-spacing: 1px; }
+        .subtitle { font-size: 0.6rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 2px; }
 
         .grid-data {
             display: grid;
             grid-template-columns: 1fr 1fr 1fr;
             gap: 10px;
-            margin: 15px 0;
+            margin-bottom: 20px;
         }
 
         .card {
             background: var(--card-bg);
             border: 1px solid rgba(212, 175, 55, 0.3);
             border-radius: 12px;
-            padding: 10px;
+            padding: 15px 5px;
             text-align: center;
         }
 
-        .label { font-size: 0.6rem; color: var(--gold); font-weight: bold; }
-        .value { font-size: 1.5rem; font-weight: 800; margin: 5px 0; }
-        .unit { font-size: 0.7rem; color: #94a3b8; }
+        .label { font-size: 0.6rem; color: var(--gold); font-weight: bold; margin-bottom: 5px; text-transform: uppercase; }
+        .value { font-size: 1.4rem; font-weight: 800; }
 
         .instrument-panel {
-            display: flex;
-            align-items: center;
-            justify-content: center;
             background: var(--card-bg);
-            border-radius: 50px;
-            padding: 8px 20px;
-            margin-bottom: 15px;
-            border: 1px solid var(--accent);
-        }
-        #compass-disc { font-size: 1.4rem; transition: transform 0.2s ease-out; margin-right: 15px; }
-        #dir-text { font-weight: 600; font-size: 0.9rem; color: var(--gold); }
-
-        #map {
-            height: 280px;
-            width: 100%;
             border-radius: 20px;
-            margin-bottom: 15px;
+            padding: 20px;
+            text-align: center;
             border: 1px solid var(--accent);
-            z-index: 1;
+            margin-bottom: 20px;
         }
+        #compass-disc { font-size: 3rem; display: block; transition: transform 0.2s ease-out; margin-bottom: 10px; }
 
-        .controls {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-        }
-
-        button {
-            padding: 14px;
-            border-radius: 12px;
-            border: none;
-            font-weight: bold;
-            cursor: pointer;
-            text-transform: uppercase;
-            font-size: 0.8rem;
-        }
-
+        .controls { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        button { padding: 15px; border-radius: 12px; border: none; font-weight: bold; text-transform: uppercase; cursor: pointer; transition: 0.2s; }
+        button:active { transform: scale(0.95); }
         .btn-main { background: var(--gold); color: #000; grid-column: span 2; font-size: 1rem; }
         .btn-save { background: transparent; color: var(--gold); border: 1px solid var(--gold); }
         .btn-reset { background: transparent; color: var(--danger); border: 1px solid var(--danger); }
 
-        #status-bar {
-            margin-top: 15px;
-            padding: 8px;
-            font-size: 0.75rem;
-            text-align: center;
-            color: #94a3b8;
+        /* BARRA DI NAVIGAZIONE IN BASSO */
+        .tab-bar {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            height: 70px;
+            background: var(--tab-bg);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            z-index: 2000;
         }
 
-        footer {
-            margin-top: 30px;
-            font-size: 0.8rem;
+        .tab-item {
+            text-align: center;
             color: #64748b;
-            text-align: center;
+            text-decoration: none;
+            font-size: 0.7rem;
+            flex: 1;
+            padding: 10px;
         }
 
-        .author-name { color: var(--gold); font-weight: 700; }
+        .tab-item.active { color: var(--gold); }
+        .tab-item span { font-size: 1.6rem; display: block; margin-bottom: 4px; }
+
+        #status-bar { font-size: 0.7rem; color: #94a3b8; text-align: center; margin-top: 10px; min-height: 1.2em; }
     </style>
 </head>
 <body>
 
-    <div class="container">
+    <div id="landscape-lock">
+        <span style="font-size: 3rem;">📱</span>
+        <p>Mio Signore, Sua Altezza predilige la visione verticale.</p>
+    </div>
+
+    <div id="page-dash" class="page active">
         <header>
             <h1>SUA ALTEZZA</h1>
             <div class="subtitle">Sistemi di Navigazione Reali</div>
@@ -132,41 +165,48 @@
 
         <div class="grid-data">
             <div class="card">
-                <div class="label">🛰️ Quota GPS</div>
-                <div id="gps-alt" class="value">--</div>
-                <div class="unit">metri</div>
+                <div class="label">🛰️ GPS (m)</div>
+                <div id="dash-gps" class="value">--</div>
             </div>
             <div class="card">
-                <div class="label">🌍 Quota Mappa</div>
-                <div id="map-alt" class="value">--</div>
-                <div class="unit">metri</div>
+                <div class="label">🌍 MAPPA (m)</div>
+                <div id="dash-map" class="value">--</div>
             </div>
             <div class="card">
-                <div class="label">🚀 Velocità</div>
-                <div id="speed" class="value">0</div>
-                <div class="unit">km/h</div>
+                <div class="label">🚀 KM/H</div>
+                <div id="dash-speed" class="value">0</div>
             </div>
         </div>
 
         <div class="instrument-panel">
             <span id="compass-disc">🧭</span>
-            <span id="dir-text">Direzione: --</span>
+            <div id="dir-text" style="color:var(--gold); font-weight:bold;">Direzione: --</div>
         </div>
-
-        <div id="map"></div>
 
         <div class="controls">
             <button class="btn-main" onclick="capturePoint()">👑 Registra Punto</button>
             <button class="btn-save" onclick="exportJSON()">💾 Scarica JSON</button>
             <button class="btn-reset" onclick="clearHistory()">🧹 Resetta</button>
         </div>
-
-        <div id="status-bar">Ricerca segnale...</div>
-
-        <footer>
-            un app di <span class="author-name">Alessandro Rocca</span>
-        </footer>
+        <div id="status-bar">In attesa del segnale GPS...</div>
     </div>
+
+    <div id="page-map" class="page">
+        <div class="map-overlay">
+            <div id="overlay-alt">Quota: -- m</div>
+            <div id="overlay-speed">Vel: 0 km/h</div>
+        </div>
+        <div id="map"></div>
+    </div>
+
+    <nav class="tab-bar">
+        <div class="tab-item active" id="tab-dash" onclick="switchPage('dash')">
+            <span>📊</span>Dati
+        </div>
+        <div class="tab-item" id="tab-map" onclick="switchPage('map')">
+            <span>🗺️</span>Mappa
+        </div>
+    </nav>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
@@ -174,13 +214,35 @@
         let map, marker, history = [];
         let currentPos = { lat: null, lon: null, alt: null };
 
+        // CONFIGURAZIONE ICONA PERSONALIZZATA (LA TUA BUSSOLA CON CORONA)
+        const myIcon = L.icon({
+            iconUrl: 'punto.png', 
+            iconSize: [42, 42],
+            iconAnchor: [21, 21]
+        });
+
+        function switchPage(pageId) {
+            // Gestione classi pagine
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById('page-' + pageId).classList.add('active');
+
+            // Gestione classi tab
+            document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+            document.getElementById('tab-' + pageId).classList.add('active');
+
+            // Fix per il rendering della mappa quando si cambia tab
+            if(pageId === 'map' && map) {
+                setTimeout(() => { map.invalidateSize(); }, 250);
+            }
+        }
+
         function initApp() {
             map = L.map('map', { zoomControl: false }).setView([41.9, 12.5], 5);
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
             
             if (navigator.geolocation) {
-                navigator.geolocation.watchPosition(updateLiveMetrics, handleError, {
-                    enableHighAccuracy: true
+                navigator.geolocation.watchPosition(updateLiveMetrics, handleError, { 
+                    enableHighAccuracy: true 
                 });
             }
         }
@@ -189,63 +251,90 @@
             currentPos.lat = pos.coords.latitude;
             currentPos.lon = pos.coords.longitude;
             currentPos.alt = pos.coords.altitude;
+            let speed = pos.coords.speed ? (pos.coords.speed * 3.6).toFixed(0) : 0;
 
-            document.getElementById('speed').innerText = pos.coords.speed ? (pos.coords.speed * 3.6).toFixed(0) : 0;
-            document.getElementById('gps-alt').innerText = currentPos.alt ? currentPos.alt.toFixed(1) : "N.D.";
+            // Aggiorna Dashboard
+            document.getElementById('dash-speed').innerText = speed;
+            document.getElementById('dash-gps').innerText = currentPos.alt ? currentPos.alt.toFixed(1) : "N.D.";
 
-            if (pos.coords.heading !== null) {
+            // Aggiorna Overlay Mappa
+            document.getElementById('overlay-alt').innerText = `Quota: ${currentPos.alt ? currentPos.alt.toFixed(0) : '--'} m`;
+            document.getElementById('overlay-speed').innerText = `Vel: ${speed} km/h`;
+
+            // Aggiorna Bussola (se disponibile)
+            if (pos.coords.heading !== null && pos.coords.heading !== undefined) {
                 document.getElementById('compass-disc').style.transform = `rotate(${pos.coords.heading}deg)`;
                 document.getElementById('dir-text').innerText = `Direzione: ${pos.coords.heading.toFixed(0)}°`;
             }
 
+            // Aggiorna Posizione Mappa
             const latlng = [currentPos.lat, currentPos.lon];
-            if (!marker) { marker = L.marker(latlng).addTo(map); map.setView(latlng, 16); }
-            else { marker.setLatLng(latlng); }
-            document.getElementById('status-bar').innerText = "GPS Attivo";
+            if (!marker) { 
+                marker = L.marker(latlng, {icon: myIcon}).addTo(map);
+                map.setView(latlng, 16); 
+            } else { 
+                marker.setLatLng(latlng); 
+            }
+            document.getElementById('status-bar').innerText = "Segnale GPS attivo";
         }
 
         async function capturePoint() {
             if (!currentPos.lat) return;
             const status = document.getElementById('status-bar');
-            let elevMappa = "OFFLINE";
+            status.innerText = "Recupero quota mappa...";
+            
+            let elevMappa = "N.D.";
+            
+            // Tentativo doppio (Diretto + Proxy per evitare blocchi CORS)
+            const urls = [
+                `https://api.open-elevation.com/api/v1/lookup?locations=${currentPos.lat},${currentPos.lon}`,
+                `https://api.corsproxy.io/?url=` + encodeURIComponent(`https://api.open-elevation.com/api/v1/lookup?locations=${currentPos.lat},${currentPos.lon}`)
+            ];
 
-            try {
-                const res = await fetch(`https://api.open-elevation.com/api/v1/lookup?locations=${currentPos.lat},${currentPos.lon}`, { signal: AbortSignal.timeout(5000) });
-                const data = await res.json();
-                elevMappa = data.results[0].elevation.toFixed(1);
-            } catch (err) {
-                console.log("Sei offline, uso solo dati GPS.");
+            for (let url of urls) {
+                try {
+                    const res = await fetch(url, { signal: AbortSignal.timeout(6000) });
+                    const data = await res.json();
+                    if (data.results && data.results[0]) {
+                        elevMappa = data.results[0].elevation.toFixed(1);
+                        break; 
+                    }
+                } catch (err) {}
             }
 
-            document.getElementById('map-alt').innerText = elevMappa;
-
-            history.push({
-                tempo: new Date().toLocaleString(),
-                lat: currentPos.lat.toFixed(6),
-                lon: currentPos.lon.toFixed(6),
-                quota_gps: currentPos.alt ? currentPos.alt.toFixed(1) : "N.D.",
-                quota_mappa: elevMappa,
-                velocita: document.getElementById('speed').innerText
+            document.getElementById('dash-map').innerText = elevMappa;
+            
+            history.push({ 
+                tempo: new Date().toLocaleTimeString(), 
+                lat: currentPos.lat.toFixed(6), 
+                lon: currentPos.lon.toFixed(6), 
+                alt_gps: currentPos.alt ? currentPos.alt.toFixed(1) : "N.D.", 
+                alt_mappa: elevMappa 
             });
-            status.innerText = `Salvato! (${history.length} punti)`;
+            
+            status.innerText = `Punto registrato (${history.length})`;
         }
 
         function exportJSON() {
+            if (history.length === 0) return alert("Nessun punto registrato!");
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(history, null, 2));
             const dl = document.createElement('a');
             dl.setAttribute("href", dataStr);
-            dl.setAttribute("download", "viaggio_rocca.json");
+            dl.setAttribute("download", "viaggio_alessandro.json");
             dl.click();
         }
 
-        function clearHistory() {
-            if (confirm("Resettare tutto?")) {
-                history = [];
-                document.getElementById('status-bar').innerText = "Resettato.";
+        function clearHistory() { 
+            if (confirm("Resettare la cronologia?")) {
+                history = []; 
+                document.getElementById('status-bar').innerText = "Cronologia pulita.";
+                document.getElementById('dash-map').innerText = "--";
             }
         }
 
-        function handleError(err) { document.getElementById('status-bar').innerText = "Errore GPS"; }
+        function handleError(err) {
+            document.getElementById('status-bar').innerText = "Errore GPS: Segnale debole";
+        }
 
         window.onload = initApp;
     </script>
