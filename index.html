@@ -156,3 +156,158 @@
         </div>
 
         <div class="controls">
+            <button id="sensor-btn" class="btn-sensor" onclick="requestSensorPermission()">Calibra Bussola</button>
+            <button class="btn-gpx" onclick="document.getElementById('gpx-input').click()">Carica GPX</button>
+            <button id="btn-offline" class="btn-offline" onclick="downloadMapArea()">Scarica Mappa Offline</button>
+            <input type="file" id="gpx-input" accept=".gpx" onchange="loadGPX(event)">
+            <button class="btn-reset" onclick="location.reload()">Reset App</button>
+        </div>
+    </div>
+
+    <div id="page-map" class="page">
+        <div class="map-overlay">
+            <div style="font-size: 1.6rem; font-family: 'Barlow Condensed'; font-weight:800; color:white;" id="overlay-alt">-- m</div>
+        </div>
+        <div id="map"></div>
+    </div>
+
+    <nav class="tab-bar">
+        <div class="tab-item active" id="tab-dash" onclick="switchPage('dash')">
+            <span>📊</span>DASHBOARD
+        </div>
+        <div class="tab-item" id="tab-map" onclick="switchPage('map')">
+            <span>🗺️</span>MAPPA
+        </div>
+    </nav>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://api.mapbox.com/mapbox.js/plugins/leaflet-omnivore/v0.3.1/leaflet-omnivore.min.js"></script>
+
+    <script>
+        // 1. SERVICE WORKER INTERNO PER FUNZIONAMENTO SENZA INTERNET
+        const CACHE_FILES = 'sua-altezza-v5';
+        if ('serviceWorker' in navigator) {
+            const swBlob = new Blob([`
+                self.addEventListener('install', e => e.waitUntil(caches.open('${CACHE_FILES}').then(c => c.addAll(['./']))));
+                self.addEventListener('fetch', e => e.respondWith(caches.match(e.request).then(r => r || fetch(e.request))));
+            `], {type: 'application/javascript'});
+            navigator.serviceWorker.register(URL.createObjectURL(swBlob));
+        }
+
+        // 2. LOGICA APPLICATIVA
+        let map, marker, gpxLayer;
+        const MAP_CACHE_NAME = 'map-tiles-cache';
+
+        const street = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png');
+        const topo = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', { maxZoom: 17 });
+
+        function initApp() {
+            map = L.map('map', { zoomControl: false, layers: [topo] }).setView([41.9, 12.5], 5);
+            L.control.layers({"Rilievi": topo, "Stradale": street}, null, { position: 'topleft' }).addTo(map);
+            if (navigator.geolocation) {
+                navigator.geolocation.watchPosition(updateLiveMetrics, null, { enableHighAccuracy: true });
+            }
+        }
+
+        async function downloadMapArea() {
+            if (!gpxLayer) return;
+            const btn = document.getElementById('btn-offline');
+            const box = document.getElementById('download-box');
+            const bar = document.getElementById('progress-bar');
+            const status = document.getElementById('status-text');
+            
+            box.style.display = 'block';
+            btn.style.display = 'none';
+
+            const bounds = gpxLayer.getBounds();
+            const cache = await caches.open(MAP_CACHE_NAME);
+            const zooms = [13, 14, 15]; 
+            let urls = [];
+
+            zooms.forEach(z => {
+                const nw = map.project(bounds.getNorthWest(), z).divideBy(256).floor();
+                const se = map.project(bounds.getSouthEast(), z).divideBy(256).floor();
+                for (let x = nw.x; x <= se.x; x++) {
+                    for (let y = nw.y; y <= se.y; y++) {
+                        urls.push(`https://a.tile.opentopomap.org/${z}/${x}/${y}.png`);
+                    }
+                }
+            });
+
+            let count = 0;
+            for (const url of urls) {
+                try {
+                    const res = await fetch(url);
+                    if (res.ok) await cache.put(url, res);
+                } catch (e) {}
+                count++;
+                let p = Math.round((count / urls.length) * 100);
+                bar.style.width = p + "%";
+                status.innerText = `OFFLINE READY: ${p}%`;
+            }
+            status.innerText = "MAPPA SALVATA - MEM SOFTWARE ✓";
+        }
+
+        function loadGPX(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                if (gpxLayer) map.removeLayer(gpxLayer);
+                gpxLayer = omnivore.gpx.parse(e.target.result);
+                gpxLayer.setStyle({ color: '#f1c40f', weight: 5 });
+                gpxLayer.addTo(map);
+                document.getElementById('btn-offline').style.display = 'block';
+                gpxLayer.on('ready', () => { map.fitBounds(gpxLayer.getBounds()); switchPage('map'); });
+            };
+            reader.readAsText(file);
+        }
+
+        function updateLiveMetrics(pos) {
+            const alt = pos.coords.altitude ? pos.coords.altitude.toFixed(0) : "--";
+            document.getElementById('dash-gps').innerText = alt;
+            document.getElementById('overlay-alt').innerText = alt + " m";
+            const latlng = [pos.coords.latitude, pos.coords.longitude];
+            if (!marker) { 
+                marker = L.marker(latlng, {icon: L.icon({iconUrl: 'punto.png', iconSize: [40, 40], iconAnchor: [20, 20]}), zIndexOffset: 1000}).addTo(map);
+                map.setView(latlng, 16); 
+            } else { marker.setLatLng(latlng); }
+        }
+
+        const ticksGroup = document.getElementById('ticks');
+        for (let i = 0; i < 360; i += 10) {
+            const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+            line.setAttribute("x1", "100"); line.setAttribute("y1", "12");
+            line.setAttribute("x2", "100"); line.setAttribute("y2", i % 30 === 0 ? "28" : "20");
+            line.setAttribute("transform", `rotate(${i} 100 100)`);
+            ticksGroup.appendChild(line);
+        }
+
+        async function requestSensorPermission() {
+            if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+                const permission = await DeviceOrientationEvent.requestPermission();
+                if (permission === 'granted') window.addEventListener('deviceorientation', handleOrientation);
+            } else { window.addEventListener('deviceorientation', handleOrientation); }
+            document.getElementById('sensor-btn').innerText = "Bussola OK";
+        }
+
+        function handleOrientation(e) {
+            let h = e.webkitCompassHeading || (360 - e.alpha);
+            if(h !== undefined) {
+                document.getElementById('compass-rose').style.transform = `rotate(${-Math.round(h)}deg)`;
+                document.getElementById('degrees').innerText = Math.round(h) + "°";
+            }
+        }
+
+        function switchPage(p) {
+            document.querySelectorAll('.page').forEach(pg => pg.classList.remove('active'));
+            document.getElementById('page-' + p).classList.add('active');
+            document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+            document.getElementById('tab-' + p).classList.add('active');
+            if(p === 'map') setTimeout(() => map.invalidateSize(), 300);
+        }
+
+        window.onload = initApp;
+    </script>
+</body>
+</html>
