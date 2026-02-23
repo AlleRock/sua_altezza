@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Sua Altezza - Navigator Pro</title>
 
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Barlow+Condensed:wght@600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;900&family=Barlow+Condensed:wght@700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 
     <style>
@@ -13,10 +13,8 @@
             --gold: #f1c40f;
             --bg: #0b0f1a;
             --card-bg: rgba(255, 255, 255, 0.05);
-            --accent: #d4af37;
             --danger: #ff4757;
             --tab-bg: #161b2a;
-            --success: #00d2d3;
         }
 
         body {
@@ -61,14 +59,13 @@
             text-align: center;
         }
 
-        .label { font-size: 0.65rem; color: #64748b; font-weight: 700; text-transform: uppercase; margin-bottom: 5px; }
-        .value { font-family: 'Barlow Condensed'; font-size: 2rem; font-weight: 800; }
+        .label { font-size: 0.65rem; color: #64748b; font-weight: 700; text-transform: uppercase; }
+        .value { font-family: 'Barlow Condensed'; font-size: 2.2rem; font-weight: 800; }
 
-        /* BUSSOLA DINAMICA */
         .compass-area {
             position: relative;
-            width: 220px;
-            height: 220px;
+            width: 200px;
+            height: 200px;
             margin: 0 auto 25px auto;
             display: flex;
             align-items: center;
@@ -77,72 +74,51 @@
 
         .compass-housing {
             position: absolute;
-            width: 100%;
-            height: 100%;
+            width: 100%; height: 100%;
             border-radius: 50%;
             border: 2px solid rgba(255,255,255,0.1);
             background: radial-gradient(circle, #1a1f2e 0%, #0b0f1a 100%);
         }
 
         #compass-rose {
-            width: 85%;
-            height: 85%;
+            width: 85%; height: 85%;
             transition: transform 0.1s linear;
             z-index: 2;
         }
 
         .fixed-pointer {
             position: absolute;
-            top: -5px;
-            width: 4px;
-            height: 25px;
+            top: -5px; width: 4px; height: 25px;
             background: var(--gold);
             z-index: 10;
-            box-shadow: 0 0 10px rgba(241, 196, 15, 0.5);
         }
 
         .degrees-display {
             position: absolute;
             font-family: 'Barlow Condensed';
-            font-size: 1.8rem;
-            font-weight: 800;
-            color: #fff;
-            text-shadow: 0 0 10px rgba(0,0,0,0.5);
+            font-size: 1.8rem; font-weight: 800;
         }
 
-        /* CONTROLLI */
         .controls { display: flex; flex-direction: column; gap: 12px; }
         button { 
             font-family: 'Inter'; font-weight: 700; padding: 16px; 
-            border-radius: 15px; border: none; text-transform: uppercase; font-size: 0.8rem; cursor: pointer;
+            border-radius: 15px; border: none; text-transform: uppercase; cursor: pointer;
         }
 
-        .btn-sensor { background: var(--gold); color: #000; animation: pulse 2s infinite; }
+        .btn-sensor { background: var(--gold); color: #000; }
         .btn-gpx { background: #fff; color: #000; }
         .btn-reset { background: transparent; color: var(--danger); border: 1px solid var(--danger); }
 
-        @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 rgba(241, 196, 15, 0.4); }
-            70% { box-shadow: 0 0 0 10px rgba(241, 196, 15, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(241, 196, 15, 0); }
-        }
-
-        .footer-credit { text-align: center; font-size: 0.6rem; color: #4b5563; margin-top: 20px; }
+        .footer-credit { text-align: center; font-size: 0.6rem; color: #4b5563; margin-top: 20px; letter-spacing: 1px; }
         .footer-credit b { color: var(--gold); }
 
-        /* MAP OVERLAY */
         .map-overlay {
             position: absolute;
-            top: 20px;
-            right: 20px;
+            top: 20px; right: 20px;
             background: rgba(0, 0, 0, 0.85);
-            padding: 12px;
-            border-radius: 12px;
-            border-right: 4px solid var(--gold);
-            z-index: 1000;
-            pointer-events: none;
+            padding: 12px; border-radius: 12px; border-right: 4px solid var(--gold);
+            z-index: 1000; pointer-events: none;
         }
-        .map-overlay div { font-family: 'Barlow Condensed'; font-size: 1rem; }
 
         .tab-bar {
             position: fixed; bottom: 0; width: 100%; height: 70px;
@@ -152,6 +128,16 @@
         .tab-item { text-align: center; color: #4b5563; flex: 1; font-size: 0.7rem; }
         .tab-item.active { color: var(--gold); }
         .tab-item span { font-size: 1.5rem; display: block; }
+
+        /* SELETTORE MAPPA VISIBILE */
+        .leaflet-control-layers {
+            margin-top: 15px !important;
+            margin-left: 15px !important;
+            background: #161b2a !important;
+            color: #fff !important;
+            border: 2px solid var(--gold) !important;
+        }
+        .leaflet-control-layers-list label { color: white !important; }
 
         #gpx-input { display: none; }
     </style>
@@ -166,7 +152,7 @@
 
         <div class="grid-data">
             <div class="card">
-                <div class="label">Altezza (m)</div>
+                <div class="label">Quota (m)</div>
                 <div id="dash-gps" class="value">--</div>
             </div>
             <div class="card">
@@ -190,9 +176,9 @@
 
         <div class="controls">
             <button id="sensor-btn" class="btn-sensor" onclick="requestSensorPermission()">Calibra Bussola</button>
-            <button class="btn-gpx" onclick="document.getElementById('gpx-input').click()">Carica Percorso GPX</button>
+            <button class="btn-gpx" onclick="document.getElementById('gpx-input').click()">Carica GPX</button>
             <input type="file" id="gpx-input" accept=".gpx" onchange="loadGPX(event)">
-            <button class="btn-reset" onclick="clearMap()">Rimuovi Percorso</button>
+            <button class="btn-reset" onclick="clearMap()">Svuota Percorso</button>
         </div>
 
         <div class="footer-credit">Designed by <b>Mem Software</b></div>
@@ -222,45 +208,43 @@
         let map, marker, gpxLayer;
         let currentPos = { lat: null, lon: null, alt: null };
 
-        // PROVIDER MAPPE MIGLIORATI
+        // LAYER FUNZIONANTI SENZA CHIAVI API
         const street = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png');
         const satellite = L.tileLayer('https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}');
         
-        // Mappa Landscape con curve di livello e rilievi spettacolari
-        const landscape = L.tileLayer('https://{s}.tile.thunderforest.com/landscape/{z}/{x}/{y}.png?apikey=hike', {
-            attribution: '© Thunderforest'
+        // OpenTopoMap: IL MIGLIORE PER RILIEVI CON QUOTE NUMERICHE
+        const topo = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+            maxZoom: 17,
+            attribution: 'Map data: © OpenStreetMap contributors, SRTM | Map style: © OpenTopoMap (CC-BY-SA)'
         });
 
         const myIcon = L.icon({
             iconUrl: 'punto.png', 
-            iconSize: [40, 40],
-            iconAnchor: [20, 20]
+            iconSize: [40, 40], iconAnchor: [20, 20]
         });
 
         function initApp() {
             map = L.map('map', { zoomControl: false, layers: [street] }).setView([41.9, 12.5], 5);
-            L.control.layers({"Stradale": street, "Satellite": satellite, "Rilievi/Outdoor": landscape}, null, {position: 'topleft'}).addTo(map);
+            
+            const baseMaps = {
+                "Stradale": street,
+                "Satellite": satellite,
+                "Rilievi (Quote ON)": topo
+            };
+            
+            L.control.layers(baseMaps, null, { position: 'topleft' }).addTo(map);
 
             if (navigator.geolocation) {
                 navigator.geolocation.watchPosition(updateLiveMetrics, null, { enableHighAccuracy: true });
             }
-
-            // Controllo se serve il tasto bussola (iOS)
-            if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
-                document.getElementById('sensor-btn').style.display = 'block';
-            } else {
-                window.addEventListener('deviceorientation', handleOrientation);
-                document.getElementById('sensor-btn').style.display = 'none';
-            }
         }
 
-        // GENERAZIONE TICKS BUSSOLA
+        // DISEGNO TICKS BUSSOLA
         const ticksGroup = document.getElementById('ticks');
         for (let i = 0; i < 360; i += 10) {
             const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
-            const isMain = i % 30 === 0;
             line.setAttribute("x1", "100"); line.setAttribute("y1", "12");
-            line.setAttribute("x2", "100"); line.setAttribute("y2", isMain ? "28" : "20");
+            line.setAttribute("x2", "100"); line.setAttribute("y2", i % 30 === 0 ? "28" : "20");
             line.setAttribute("transform", `rotate(${i} 100 100)`);
             ticksGroup.appendChild(line);
         }
@@ -270,22 +254,25 @@
             document.getElementById('page-' + p).classList.add('active');
             document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
             document.getElementById('tab-' + p).classList.add('active');
-            if(p === 'map') setTimeout(() => map.invalidateSize(), 200);
+            if(p === 'map') setTimeout(() => map.invalidateSize(), 300);
         }
 
         async function requestSensorPermission() {
-            if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+            if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
                 const permission = await DeviceOrientationEvent.requestPermission();
                 if (permission === 'granted') {
                     window.addEventListener('deviceorientation', handleOrientation);
-                    document.getElementById('sensor-btn').style.display = 'none';
+                    document.getElementById('sensor-btn').innerText = "Attivo";
                 }
+            } else {
+                window.addEventListener('deviceorientation', handleOrientation);
+                document.getElementById('sensor-btn').innerText = "Attivo";
             }
         }
 
         function handleOrientation(e) {
             let h = e.webkitCompassHeading || (360 - e.alpha);
-            if(h) {
+            if(h !== undefined) {
                 const rh = Math.round(h);
                 document.getElementById('compass-rose').style.transform = `rotate(${-rh}deg)`;
                 document.getElementById('degrees').innerText = rh + "°";
@@ -295,12 +282,10 @@
         function updateLiveMetrics(pos) {
             currentPos = { lat: pos.coords.latitude, lon: pos.coords.longitude, alt: pos.coords.altitude };
             let s = pos.coords.speed ? (pos.coords.speed * 3.6).toFixed(0) : 0;
-            
             document.getElementById('dash-speed').innerText = s;
             document.getElementById('dash-gps').innerText = currentPos.alt ? currentPos.alt.toFixed(0) : "--";
             document.getElementById('overlay-alt').innerText = (currentPos.alt ? currentPos.alt.toFixed(0) : "--") + " m";
             document.getElementById('overlay-speed').innerText = s + " km/h";
-
             const latlng = [currentPos.lat, currentPos.lon];
             if (!marker) { 
                 marker = L.marker(latlng, {icon: myIcon, zIndexOffset: 1000}).addTo(map);
@@ -315,12 +300,9 @@
             reader.onload = function(e) {
                 if (gpxLayer) map.removeLayer(gpxLayer);
                 gpxLayer = omnivore.gpx.parse(e.target.result);
-                gpxLayer.setStyle({ color: '#f1c40f', weight: 5, opacity: 0.8 });
+                gpxLayer.setStyle({ color: '#f1c40f', weight: 5 });
                 gpxLayer.addTo(map);
-                gpxLayer.on('ready', () => { 
-                    map.fitBounds(gpxLayer.getBounds()); 
-                    switchPage('map'); 
-                });
+                gpxLayer.on('ready', () => { map.fitBounds(gpxLayer.getBounds()); switchPage('map'); });
             };
             reader.readAsText(file);
         }
