@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Sua Altezza - Pro</title>
+    <title>Sua Altezza - Mem Software</title>
 
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -44,15 +44,15 @@
         #page-map { padding: 0; position: relative; }
         #map { height: 100%; width: 100%; z-index: 1; background: #000; }
 
-        header { text-align: center; margin-bottom: 15px; }
-        h1 { font-weight: 900; font-size: 1.6rem; margin: 0; color: var(--gold); text-transform: uppercase; }
+        header { text-align: center; margin-bottom: 5px; }
+        h1 { font-weight: 900; font-size: 1.8rem; margin: 0; color: var(--gold); text-transform: uppercase; }
+        .subtitle { font-size: 0.65rem; letter-spacing: 2px; color: #64748b; text-transform: uppercase; margin-top: 2px; margin-bottom: 10px; }
         
-        /* MARCHIO MEM SOFTWARE - POSIZIONE EVIDENTE */
         .mem-brand {
             text-align: center;
             font-size: 0.7rem;
-            letter-spacing: 3px;
-            color: rgba(255,255,255,0.4);
+            letter-spacing: 2px;
+            color: rgba(255,255,255,0.5);
             text-transform: uppercase;
             margin-bottom: 15px;
         }
@@ -86,29 +86,23 @@
         .fixed-pointer { position: absolute; top: -5px; width: 4px; height: 25px; background: var(--gold); z-index: 10; }
         .degrees-display { position: absolute; font-family: 'Barlow Condensed'; font-size: 1.8rem; font-weight: 800; }
 
+        #download-box { 
+            display: none; background: rgba(46, 204, 113, 0.1); padding: 12px; border-radius: 12px; margin-bottom: 15px; border: 1px dashed var(--success);
+        }
+        .progress-bg { width: 100%; height: 10px; background: #333; border-radius: 5px; overflow: hidden; margin: 8px 0; }
+        #progress-bar { width: 0%; height: 100%; background: var(--success); transition: width 0.1s; }
+        #status-text { font-size: 0.75rem; color: var(--success); font-weight: 700; text-align: center; }
+
         .controls { display: flex; flex-direction: column; gap: 10px; padding-bottom: 20px; }
         button { 
             font-family: 'Inter'; font-weight: 700; padding: 15px; 
-            border-radius: 12px; border: none; text-transform: uppercase; cursor: pointer;
-            font-size: 0.85rem;
+            border-radius: 12px; border: none; text-transform: uppercase; cursor: pointer; font-size: 0.85rem;
         }
 
         .btn-sensor { background: var(--gold); color: #000; }
         .btn-gpx { background: #fff; color: #000; }
         #btn-offline { background: #1e272e; color: #fff; display: none; border: 2px solid var(--success); }
         .btn-reset { background: transparent; color: var(--danger); border: 1px solid var(--danger); }
-
-        #download-box { 
-            display: none; background: rgba(0,0,0,0.5); padding: 12px; border-radius: 12px; margin-bottom: 10px; 
-        }
-        .progress-bg { width: 100%; height: 10px; background: #333; border-radius: 5px; overflow: hidden; margin: 8px 0; }
-        #progress-bar { width: 0%; height: 100%; background: var(--success); transition: width 0.1s; }
-        #status-text { font-size: 0.75rem; color: var(--success); font-weight: 700; text-align: center; }
-
-        .map-overlay {
-            position: absolute; top: 15px; right: 15px;
-            background: rgba(0, 0, 0, 0.85); padding: 10px; border-radius: 10px; border-right: 4px solid var(--gold); z-index: 1000;
-        }
 
         .tab-bar {
             position: fixed; bottom: 0; width: 100%; height: 75px;
@@ -128,8 +122,8 @@
     <div id="page-dash" class="page active">
         <header>
             <h1>SUA ALTEZZA</h1>
+            <div class="subtitle">Sistemi di Navigazione Reali</div>
         </header>
-
         <div class="mem-brand">Designed by <b>Mem Software</b></div>
 
         <div class="card">
@@ -151,61 +145,89 @@
         </div>
 
         <div id="download-box">
-            <div id="status-text">Salvataggio...</div>
+            <div id="status-text">Pronto...</div>
             <div class="progress-bg"><div id="progress-bar"></div></div>
         </div>
 
         <div class="controls">
             <button id="sensor-btn" class="btn-sensor" onclick="requestSensorPermission()">Calibra Bussola</button>
-            <button class="btn-gpx" onclick="document.getElementById('gpx-input').click()">Carica GPX</button>
+            <button class="btn-gpx" onclick="document.getElementById('gpx-input').click()">Carica Percorso GPX</button>
             <button id="btn-offline" class="btn-offline" onclick="downloadMapArea()">Scarica Mappa Offline</button>
-            <input type="file" id="gpx-input" accept=".gpx" onchange="loadGPX(event)">
-            <button class="btn-reset" onclick="location.reload()">Reset App</button>
+            <input type="file" id="gpx-input" accept=".gpx" onchange="handleFileSelect(event)">
+            <button class="btn-reset" onclick="clearAllData()">Resetta App</button>
         </div>
     </div>
 
     <div id="page-map" class="page">
-        <div class="map-overlay">
-            <div style="font-size: 1.6rem; font-family: 'Barlow Condensed'; font-weight:800; color:white;" id="overlay-alt">-- m</div>
-        </div>
         <div id="map"></div>
     </div>
 
     <nav class="tab-bar">
-        <div class="tab-item active" id="tab-dash" onclick="switchPage('dash')">
-            <span>📊</span>DASHBOARD
-        </div>
-        <div class="tab-item" id="tab-map" onclick="switchPage('map')">
-            <span>🗺️</span>MAPPA
-        </div>
+        <div class="tab-item active" id="tab-dash" onclick="switchPage('dash')"><span>📊</span>DASHBOARD</div>
+        <div class="tab-item" id="tab-map" onclick="switchPage('map')"><span>🗺️</span>MAPPA</div>
     </nav>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://api.mapbox.com/mapbox.js/plugins/leaflet-omnivore/v0.3.1/leaflet-omnivore.min.js"></script>
 
     <script>
-        // 1. SERVICE WORKER INTERNO PER FUNZIONAMENTO SENZA INTERNET
-        const CACHE_FILES = 'sua-altezza-v5';
+        const CACHE_NAME = 'sua-altezza-v12';
         if ('serviceWorker' in navigator) {
             const swBlob = new Blob([`
-                self.addEventListener('install', e => e.waitUntil(caches.open('${CACHE_FILES}').then(c => c.addAll(['./']))));
+                self.addEventListener('install', e => e.waitUntil(caches.open('${CACHE_NAME}').then(c => c.addAll(['./']))));
                 self.addEventListener('fetch', e => e.respondWith(caches.match(e.request).then(r => r || fetch(e.request))));
             `], {type: 'application/javascript'});
             navigator.serviceWorker.register(URL.createObjectURL(swBlob));
         }
 
-        // 2. LOGICA APPLICATIVA
         let map, marker, gpxLayer;
-        const MAP_CACHE_NAME = 'map-tiles-cache';
+        const MAP_TILE_CACHE = 'map-tiles-v12';
 
         const street = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png');
         const topo = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', { maxZoom: 17 });
+        const satellite = L.tileLayer('https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}');
 
         function initApp() {
             map = L.map('map', { zoomControl: false, layers: [topo] }).setView([41.9, 12.5], 5);
-            L.control.layers({"Rilievi": topo, "Stradale": street}, null, { position: 'topleft' }).addTo(map);
+            L.control.layers({"Rilievi": topo, "Satellite": satellite, "Stradale": street}, null, { position: 'topleft' }).addTo(map);
+            
+            const savedGPX = localStorage.getItem('saved_path_json');
+            if (savedGPX) {
+                renderGPX(savedGPX);
+                document.getElementById('btn-offline').style.display = 'block';
+            }
+
             if (navigator.geolocation) {
                 navigator.geolocation.watchPosition(updateLiveMetrics, null, { enableHighAccuracy: true });
+            }
+        }
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const content = e.target.result;
+                localStorage.setItem('saved_path_json', content);
+                renderGPX(content);
+                document.getElementById('btn-offline').style.display = 'block';
+            };
+            reader.readAsText(file);
+        }
+
+        function renderGPX(data) {
+            if (gpxLayer) map.removeLayer(gpxLayer);
+            gpxLayer = omnivore.gpx.parse(data);
+            gpxLayer.setStyle({ color: '#f1c40f', weight: 5 });
+            gpxLayer.addTo(map);
+            gpxLayer.on('ready', () => { map.fitBounds(gpxLayer.getBounds()); });
+        }
+
+        // RESET TOTALE: SVUOTA MEMORIA JSON E LOCALSTORAGE
+        function clearAllData() {
+            if(confirm("Attenzione: questo cancellerà il percorso e tutti i dati salvati. Procedere?")) {
+                localStorage.clear(); 
+                location.reload();
             }
         }
 
@@ -215,15 +237,11 @@
             const box = document.getElementById('download-box');
             const bar = document.getElementById('progress-bar');
             const status = document.getElementById('status-text');
-            
-            box.style.display = 'block';
-            btn.style.display = 'none';
-
+            box.style.display = 'block'; btn.style.display = 'none';
             const bounds = gpxLayer.getBounds();
-            const cache = await caches.open(MAP_CACHE_NAME);
+            const cache = await caches.open(MAP_TILE_CACHE);
             const zooms = [13, 14, 15]; 
             let urls = [];
-
             zooms.forEach(z => {
                 const nw = map.project(bounds.getNorthWest(), z).divideBy(256).floor();
                 const se = map.project(bounds.getSouthEast(), z).divideBy(256).floor();
@@ -233,7 +251,6 @@
                     }
                 }
             });
-
             let count = 0;
             for (const url of urls) {
                 try {
@@ -243,33 +260,17 @@
                 count++;
                 let p = Math.round((count / urls.length) * 100);
                 bar.style.width = p + "%";
-                status.innerText = `OFFLINE READY: ${p}%`;
+                status.innerText = `DOWNLOAD: ${p}%`;
             }
-            status.innerText = "MAPPA SALVATA - MEM SOFTWARE ✓";
-        }
-
-        function loadGPX(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                if (gpxLayer) map.removeLayer(gpxLayer);
-                gpxLayer = omnivore.gpx.parse(e.target.result);
-                gpxLayer.setStyle({ color: '#f1c40f', weight: 5 });
-                gpxLayer.addTo(map);
-                document.getElementById('btn-offline').style.display = 'block';
-                gpxLayer.on('ready', () => { map.fitBounds(gpxLayer.getBounds()); switchPage('map'); });
-            };
-            reader.readAsText(file);
+            status.innerText = "OFFLINE PRONTO ✓";
         }
 
         function updateLiveMetrics(pos) {
             const alt = pos.coords.altitude ? pos.coords.altitude.toFixed(0) : "--";
             document.getElementById('dash-gps').innerText = alt;
-            document.getElementById('overlay-alt').innerText = alt + " m";
             const latlng = [pos.coords.latitude, pos.coords.longitude];
             if (!marker) { 
-                marker = L.marker(latlng, {icon: L.icon({iconUrl: 'punto.png', iconSize: [40, 40], iconAnchor: [20, 20]}), zIndexOffset: 1000}).addTo(map);
+                marker = L.marker(latlng, {icon: L.icon({iconUrl: 'punto.png', iconSize: [40, 40], iconAnchor: [20, 20]})}).addTo(map);
                 map.setView(latlng, 16); 
             } else { marker.setLatLng(latlng); }
         }
@@ -306,7 +307,6 @@
             document.getElementById('tab-' + p).classList.add('active');
             if(p === 'map') setTimeout(() => map.invalidateSize(), 300);
         }
-
         window.onload = initApp;
     </script>
 </body>
