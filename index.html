@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Sua Altezza - Navigator Pro</title>
 
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Montserrat:wght@300;400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700;900&family=Barlow+Condensed:wght@600;800&display=swap" rel="stylesheet">
 
     <link rel="apple-touch-icon" href="icona.png">
     <link rel="icon" type="image/png" href="icona.png">
@@ -16,18 +16,17 @@
     <style>
         :root {
             --gold: #f1c40f;
-            --bg: #0f172a;
-            --card-bg: rgba(30, 41, 59, 0.7);
+            --bg: #0b0f1a;
+            --card-bg: rgba(255, 255, 255, 0.05);
             --accent: #d4af37;
             --danger: #ff4757;
-            --tab-bg: #1e293b;
-            --success: #2ed573;
+            --tab-bg: #161b2a;
+            --success: #00d2d3;
         }
 
         body {
-            font-family: 'Montserrat', sans-serif;
+            font-family: 'Inter', sans-serif;
             background: var(--bg);
-            background-image: radial-gradient(circle at top right, #1e293b, #0f172a);
             color: #fff;
             margin: 0;
             padding: 0;
@@ -39,7 +38,7 @@
             display: none;
             height: calc(100vh - 70px);
             width: 100%;
-            padding: 15px;
+            padding: 20px;
             box-sizing: border-box;
             overflow-y: auto;
         }
@@ -47,58 +46,63 @@
         .page.active { display: block; }
 
         #page-map { padding: 0; position: relative; }
-        #map { height: 100%; width: 100%; z-index: 1; background: #000; }
+        #map { height: 100%; width: 100%; z-index: 1; transition: transform 0.5s ease; }
+        
+        /* EFFETTO SIMIL-3D */
+        .map-3d-view #map {
+            transform: perspective(600px) rotateX(30deg) scale(1.1);
+            transform-origin: bottom center;
+        }
 
-        /* OVERLAY MAPPA */
         .map-overlay {
             position: absolute;
-            top: 15px;
-            right: 15px;
-            background: rgba(15, 23, 42, 0.85);
-            padding: 10px;
-            border-radius: 12px;
-            border: 1px solid var(--gold);
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 15px;
+            border-radius: 15px;
+            border-left: 4px solid var(--gold);
             z-index: 1000;
-            backdrop-filter: blur(5px);
-            font-family: 'Orbitron', sans-serif;
+            backdrop-filter: blur(10px);
             pointer-events: none;
         }
-        .map-overlay div { font-size: 0.75rem; color: var(--gold); margin: 2px 0; }
+        .map-overlay div { font-family: 'Barlow Condensed'; font-size: 1rem; color: #fff; margin: 2px 0; }
+        .map-overlay .alt-val { color: var(--gold); font-weight: 800; font-size: 1.2rem; }
 
-        /* HEADER */
-        header { text-align: center; margin-bottom: 20px; padding-top: 10px; }
+        header { text-align: center; margin-bottom: 25px; }
         h1 { 
-            font-family: 'Orbitron', sans-serif; 
-            font-size: 1.5rem; 
+            font-weight: 900; 
+            font-size: 1.8rem; 
             margin: 0; 
             color: var(--gold); 
-            letter-spacing: 4px;
+            letter-spacing: -1px;
+            text-transform: uppercase;
         }
 
         .grid-data {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 15px;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
         }
 
         .card {
             background: var(--card-bg);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 20px;
-            padding: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 24px;
+            padding: 20px 10px;
             text-align: center;
         }
 
-        .label { font-size: 0.6rem; color: #94a3b8; font-weight: 700; text-transform: uppercase; margin-bottom: 5px; }
-        .value { font-family: 'Orbitron', sans-serif; font-size: 1.6rem; font-weight: 700; }
+        .label { font-size: 0.7rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; }
+        .value { font-family: 'Barlow Condensed'; font-size: 2.2rem; font-weight: 800; line-height: 1; }
 
-        /* BUSSOLA */
+        /* BUSSOLA RE-DESIGNED */
         .compass-area {
             position: relative;
-            width: 240px;
-            height: 240px;
-            margin: 5px auto 25px auto;
+            width: 220px;
+            height: 220px;
+            margin: 0 auto 30px auto;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -109,99 +113,64 @@
             width: 100%;
             height: 100%;
             border-radius: 50%;
-            background: #0f172a;
-            border: 6px solid #1e293b;
-            box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
+            border: 2px solid rgba(255,255,255,0.1);
+            background: radial-gradient(circle, #1a1f2e 0%, #0b0f1a 100%);
         }
 
         #compass-rose {
-            width: 85%;
-            height: 85%;
-            transition: transform 0.15s cubic-bezier(0.1, 0.1, 0.2, 1);
+            width: 90%;
+            height: 90%;
+            transition: transform 0.1s linear;
             z-index: 2;
         }
 
         .fixed-pointer {
             position: absolute;
             top: -5px;
-            width: 0;
-            height: 0;
-            border-left: 12px solid transparent;
-            border-right: 12px solid transparent;
-            border-top: 20px solid var(--gold);
+            width: 3px;
+            height: 30px;
+            background: var(--gold);
             z-index: 10;
+            box-shadow: 0 0 10px var(--gold);
         }
 
-        .degrees-bubble {
+        .degrees-display {
             position: absolute;
-            bottom: -15px;
-            background: var(--gold);
-            color: #000;
-            padding: 4px 15px;
-            border-radius: 30px;
-            font-family: 'Orbitron', sans-serif;
-            font-weight: 900;
-            font-size: 1.2rem;
+            font-family: 'Barlow Condensed';
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #fff;
             z-index: 10;
         }
 
         /* CONTROLLI */
-        .controls { display: flex; flex-direction: column; gap: 10px; margin-top: 15px; }
+        .controls { display: flex; flex-direction: column; gap: 12px; }
         button { 
-            font-family: 'Montserrat', sans-serif;
-            padding: 14px; 
-            border-radius: 15px; 
-            border: none; 
-            font-weight: 700; 
-            text-transform: uppercase; 
-            font-size: 0.8rem; 
+            font-family: 'Inter'; font-weight: 700; padding: 18px; 
+            border-radius: 20px; border: none; text-transform: uppercase; font-size: 0.85rem; 
         }
 
-        .btn-gpx { background: linear-gradient(135deg, var(--success), #26ae60); color: #fff; }
-        .btn-reset { background: rgba(255, 255, 255, 0.05); color: #94a3b8; border: 1px solid rgba(255, 255, 255, 0.1); }
-        .btn-sensor { background: var(--gold); color: #000; display: none; animation: pulse 2s infinite; }
-
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.02); }
-            100% { transform: scale(1); }
+        .btn-gpx { background: #fff; color: #000; }
+        .btn-reset { background: transparent; color: var(--danger); border: 1px solid var(--danger); }
+        .btn-3d { 
+            position: absolute; bottom: 90px; left: 20px; z-index: 1000;
+            background: rgba(0,0,0,0.8); color: var(--gold); border: 1px solid var(--gold);
+            padding: 10px; width: 50px; height: 50px; border-radius: 50%;
         }
 
-        .footer-credit { text-align: center; font-size: 0.6rem; color: #64748b; margin-top: 15px; letter-spacing: 2px; text-transform: uppercase; }
+        .footer-credit { text-align: center; font-size: 0.65rem; color: #4b5563; margin-top: 25px; }
         .footer-credit b { color: var(--gold); }
 
-        /* TAB BAR */
         .tab-bar {
-            position: fixed;
-            bottom: 0;
-            width: 100%;
-            height: 70px;
-            background: rgba(15, 23, 42, 0.95);
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            border-top: 1px solid rgba(255,255,255,0.05);
-            z-index: 2000;
+            position: fixed; bottom: 0; width: 100%; height: 70px;
+            background: var(--tab-bg); display: flex; align-items: center; z-index: 2000;
         }
 
-        .tab-item { text-align: center; color: #64748b; font-size: 0.7rem; flex: 1; }
+        .tab-item { text-align: center; color: #4b5563; flex: 1; font-size: 0.7rem; font-weight: 700; }
         .tab-item.active { color: var(--gold); }
-        .tab-item span { font-size: 1.6rem; display: block; }
+        .tab-item span { font-size: 1.5rem; display: block; }
 
         #gpx-input { display: none; }
-
-        /* PERSONALIZZAZIONE LEAFLET PER LAYER SWITCHER */
-        .leaflet-control-layers {
-            background: rgba(15, 23, 42, 0.9) !important;
-            color: #fff !important;
-            border: 1px solid var(--gold) !important;
-            border-radius: 12px !important;
-            font-family: 'Montserrat', sans-serif !important;
-            font-size: 0.8rem !important;
-            margin-top: 15px !important;
-            margin-left: 15px !important;
-        }
-        .leaflet-control-layers-expanded { padding: 10px !important; }
     </style>
 </head>
 <body>
@@ -213,11 +182,11 @@
 
         <div class="grid-data">
             <div class="card">
-                <div class="label">🛰️ ALTEZZA (m)</div>
+                <div class="label">Quota (m)</div>
                 <div id="dash-gps" class="value">--</div>
             </div>
             <div class="card">
-                <div class="label">🚀 KM/H</div>
+                <div class="label">Speed (km/h)</div>
                 <div id="dash-speed" class="value">0</div>
             </div>
         </div>
@@ -226,36 +195,36 @@
             <div class="compass-housing"></div>
             <div class="fixed-pointer"></div>
             <svg id="compass-rose" viewBox="0 0 200 200">
-                <g id="ticks" stroke="rgba(255,255,255,0.3)" stroke-width="1.5"></g>
-                <text x="100" y="35" fill="#f1c40f" font-family="Orbitron" font-size="28" text-anchor="middle" font-weight="900">N</text>
-                <text x="100" y="180" fill="#fff" font-family="Orbitron" font-size="18" text-anchor="middle">S</text>
-                <text x="172" y="108" fill="#fff" font-family="Orbitron" font-size="18" text-anchor="middle">E</text>
-                <text x="28" y="108" fill="#fff" font-family="Orbitron" font-size="18" text-anchor="middle">O</text>
+                <g id="ticks" stroke="rgba(255,255,255,0.2)" stroke-width="1"></g>
+                <text x="100" y="30" fill="#f1c40f" font-family="Barlow Condensed" font-size="24" text-anchor="middle" font-weight="800">N</text>
+                <text x="100" y="185" fill="#fff" font-family="Barlow Condensed" font-size="16" text-anchor="middle">S</text>
+                <text x="180" y="106" fill="#fff" font-family="Barlow Condensed" font-size="16" text-anchor="middle">E</text>
+                <text x="20" y="106" fill="#fff" font-family="Barlow Condensed" font-size="16" text-anchor="middle">O</text>
             </svg>
-            <div id="degrees" class="degrees-bubble">0°</div>
+            <div id="degrees" class="degrees-display">0°</div>
         </div>
 
         <div class="controls">
-            <button id="sensor-btn" class="btn-sensor" onclick="requestSensorPermission()">ATTIVA SENSORI</button>
-            <button class="btn-gpx" onclick="document.getElementById('gpx-input').click()">🗺️ CARICA PERCORSO</button>
+            <button class="btn-gpx" onclick="document.getElementById('gpx-input').click()">Carica Percorso GPX</button>
             <input type="file" id="gpx-input" accept=".gpx" onchange="loadGPX(event)">
-            <button class="btn-reset" onclick="clearMap()">RIMUOVI TRACCIA</button>
+            <button class="btn-reset" onclick="clearMap()">Rimuovi Traccia</button>
         </div>
 
         <div class="footer-credit">Designed by <b>Mem Software</b></div>
     </div>
 
     <div id="page-map" class="page">
+        <button class="btn-3d" onclick="toggle3D()">3D</button>
         <div class="map-overlay">
-            <div id="overlay-alt">ALT: -- m</div>
-            <div id="overlay-speed">SPD: 0 km/h</div>
+            <div class="alt-val" id="overlay-alt">-- m</div>
+            <div id="overlay-speed">0 km/h</div>
         </div>
         <div id="map"></div>
     </div>
 
     <nav class="tab-bar">
         <div class="tab-item active" id="tab-dash" onclick="switchPage('dash')">
-            <span>📊</span>DATI
+            <span>📊</span>DASHBOARD
         </div>
         <div class="tab-item" id="tab-map" onclick="switchPage('map')">
             <span>🗺️</span>MAPPA
@@ -267,102 +236,71 @@
 
     <script>
         let map, marker, gpxLayer;
+        let is3D = false;
         let currentPos = { lat: null, lon: null, alt: null };
+
+        // Provider Mappe
+        const street = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png');
+        const satellite = L.tileLayer('https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}'); // Google Hybrid (Molto stabile)
+        const topo = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png');
 
         const myIcon = L.icon({
             iconUrl: 'punto.png', 
-            iconSize: [42, 42],
-            iconAnchor: [21, 21]
+            iconSize: [40, 40],
+            iconAnchor: [20, 20]
         });
 
-        // Definizione Layer Mappe
-        const osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© OpenStreetMap'
-        });
-
-        const topo = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
-            attribution: '© OpenTopoMap'
-        });
-
-        const satellite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{y}/{x}/{z}', {
-            attribution: '© Esri'
-        });
+        function toggle3D() {
+            is3D = !is3D;
+            document.getElementById('page-map').classList.toggle('map-3d-view');
+            setTimeout(() => map.invalidateSize(), 500);
+        }
 
         function initApp() {
-            // Mappa inizializzata con lo strato Standard
-            map = L.map('map', { 
-                zoomControl: false,
-                layers: [osm] 
-            }).setView([41.9, 12.5], 5);
-
-            // Aggiunta selettore layer
-            const baseMaps = {
-                "Standard": osm,
-                "Topografica": topo,
-                "Satellite": satellite
-            };
-            L.control.layers(baseMaps, null, { position: 'topleft' }).addTo(map);
+            map = L.map('map', { zoomControl: false, layers: [street] }).setView([41.9, 12.5], 5);
+            L.control.layers({"Mappa": street, "Satellite": satellite, "Rilievi": topo}, null, {position: 'topleft'}).addTo(map);
 
             if (navigator.geolocation) {
                 navigator.geolocation.watchPosition(updateLiveMetrics, null, { enableHighAccuracy: true });
             }
-
-            if (typeof DeviceOrientationEvent.requestPermission === 'function') {
-                document.getElementById('sensor-btn').style.display = 'block';
-            } else {
-                window.addEventListener('deviceorientation', handleOrientation);
-            }
+            window.addEventListener('deviceorientation', handleOrientation);
             window.addEventListener('resize', () => map && map.invalidateSize());
         }
 
-        // DISEGNO TICKS BUSSOLA
+        // DISEGNO TICKS
         const ticksGroup = document.getElementById('ticks');
         for (let i = 0; i < 360; i += 10) {
             const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
-            const length = i % 90 === 0 ? 20 : (i % 30 === 0 ? 12 : 6);
-            line.setAttribute("x1", "100"); line.setAttribute("y1", "15");
-            line.setAttribute("x2", "100"); line.setAttribute("y2", (15 + length).toString());
+            line.setAttribute("x1", "100"); line.setAttribute("y1", "10");
+            line.setAttribute("x2", "100"); line.setAttribute("y2", i % 30 === 0 ? "25" : "18");
             line.setAttribute("transform", `rotate(${i} 100 100)`);
-            if (i % 90 === 0) line.setAttribute("stroke", "#f1c40f");
             ticksGroup.appendChild(line);
         }
 
-        function switchPage(pageId) {
-            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            document.getElementById('page-' + pageId).classList.add('active');
+        function switchPage(p) {
+            document.querySelectorAll('.page').forEach(pg => pg.classList.remove('active'));
+            document.getElementById('page-' + p).classList.add('active');
             document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
-            document.getElementById('tab-' + pageId).classList.add('active');
-            if(pageId === 'map' && map) setTimeout(() => map.invalidateSize(), 250);
+            document.getElementById('tab-' + p).classList.add('active');
+            if(p === 'map') setTimeout(() => map.invalidateSize(), 200);
         }
 
-        function handleOrientation(event) {
-            let heading = event.webkitCompassHeading || (360 - event.alpha);
-            if (heading) {
-                const roundedHeading = Math.round(heading);
-                document.getElementById('compass-rose').style.transform = `rotate(${-roundedHeading}deg)`;
-                document.getElementById('degrees').innerText = roundedHeading + "°";
-            }
-        }
-
-        async function requestSensorPermission() {
-            if (typeof DeviceOrientationEvent.requestPermission === 'function') {
-                const response = await DeviceOrientationEvent.requestPermission();
-                if (response === 'granted') {
-                    window.addEventListener('deviceorientation', handleOrientation);
-                    document.getElementById('sensor-btn').style.display = 'none';
-                }
+        function handleOrientation(e) {
+            let h = e.webkitCompassHeading || (360 - e.alpha);
+            if(h) {
+                document.getElementById('compass-rose').style.transform = `rotate(${-h}deg)`;
+                document.getElementById('degrees').innerText = Math.round(h) + "°";
             }
         }
 
         function updateLiveMetrics(pos) {
-            currentPos.lat = pos.coords.latitude;
-            currentPos.lon = pos.coords.longitude;
-            currentPos.alt = pos.coords.altitude;
-            let speed = pos.coords.speed ? (pos.coords.speed * 3.6).toFixed(0) : 0;
-            document.getElementById('dash-speed').innerText = speed;
+            currentPos = { lat: pos.coords.latitude, lon: pos.coords.longitude, alt: pos.coords.altitude };
+            let s = pos.coords.speed ? (pos.coords.speed * 3.6).toFixed(0) : 0;
+            
+            document.getElementById('dash-speed').innerText = s;
             document.getElementById('dash-gps').innerText = currentPos.alt ? currentPos.alt.toFixed(0) : "--";
-            document.getElementById('overlay-alt').innerText = `ALT: ${currentPos.alt ? currentPos.alt.toFixed(0) : '--'} m`;
-            document.getElementById('overlay-speed').innerText = `SPD: ${speed} km/h`;
+            document.getElementById('overlay-alt').innerText = (currentPos.alt ? currentPos.alt.toFixed(0) : "--") + " m";
+            document.getElementById('overlay-speed').innerText = s + " km/h";
 
             const latlng = [currentPos.lat, currentPos.lon];
             if (!marker) { 
@@ -378,19 +316,14 @@
             reader.onload = function(e) {
                 if (gpxLayer) map.removeLayer(gpxLayer);
                 gpxLayer = omnivore.gpx.parse(e.target.result);
-                gpxLayer.setStyle({ color: '#f1c40f', weight: 6, opacity: 0.9 });
+                gpxLayer.setStyle({ color: '#f1c40f', weight: 5 });
                 gpxLayer.addTo(map);
-                gpxLayer.on('ready', () => {
-                    map.fitBounds(gpxLayer.getBounds());
-                    switchPage('map');
-                });
+                gpxLayer.on('ready', () => { map.fitBounds(gpxLayer.getBounds()); switchPage('map'); });
             };
             reader.readAsText(file);
         }
 
-        function clearMap() {
-            if (gpxLayer) { map.removeLayer(gpxLayer); gpxLayer = null; }
-        }
+        function clearMap() { if (gpxLayer) { map.removeLayer(gpxLayer); gpxLayer = null; } }
 
         window.onload = initApp;
     </script>
