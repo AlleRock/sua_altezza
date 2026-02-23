@@ -3,11 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Sua Altezza</title>
+    <title>Sua Altezza - Pro</title>
 
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="mobile-web-app-capable" content="yes">
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;900&family=Barlow+Condensed:wght@700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -16,7 +15,7 @@
         :root {
             --gold: #f1c40f;
             --bg: #0b0f1a;
-            --card-bg: rgba(255, 255, 255, 0.1);
+            --card-bg: rgba(255, 255, 255, 0.08);
             --danger: #ff4757;
             --success: #2ecc71;
             --tab-bg: #161b2a;
@@ -33,9 +32,9 @@
 
         .page {
             display: none;
-            height: calc(100vh - 70px);
+            height: calc(100vh - 75px);
             width: 100%;
-            padding: 20px;
+            padding: 15px;
             box-sizing: border-box;
             overflow-y: auto;
         }
@@ -45,25 +44,35 @@
         #page-map { padding: 0; position: relative; }
         #map { height: 100%; width: 100%; z-index: 1; background: #000; }
 
-        header { text-align: center; margin-bottom: 20px; }
-        h1 { font-weight: 900; font-size: 1.8rem; margin: 0; color: var(--gold); text-transform: uppercase; }
-        .subtitle { font-size: 0.7rem; letter-spacing: 2px; color: #64748b; text-transform: uppercase; margin-top: 5px; }
+        header { text-align: center; margin-bottom: 15px; }
+        h1 { font-weight: 900; font-size: 1.6rem; margin: 0; color: var(--gold); text-transform: uppercase; }
+        
+        /* MARCHIO MEM SOFTWARE - POSIZIONE EVIDENTE */
+        .mem-brand {
+            text-align: center;
+            font-size: 0.7rem;
+            letter-spacing: 3px;
+            color: rgba(255,255,255,0.4);
+            text-transform: uppercase;
+            margin-bottom: 15px;
+        }
+        .mem-brand b { color: var(--gold); }
 
         .card {
             background: var(--card-bg);
             border: 2px solid var(--gold);
             border-radius: 20px;
-            padding: 20px;
+            padding: 15px;
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
 
-        .label { font-size: 0.75rem; color: #64748b; font-weight: 700; text-transform: uppercase; }
-        .value { font-family: 'Barlow Condensed'; font-size: 3.5rem; font-weight: 800; color: #fff; line-height: 1; }
+        .label { font-size: 0.7rem; color: #64748b; font-weight: 700; text-transform: uppercase; }
+        .value { font-family: 'Barlow Condensed'; font-size: 3rem; font-weight: 800; color: #fff; line-height: 1; }
 
         .compass-area {
-            position: relative; width: 200px; height: 200px;
-            margin: 0 auto 25px auto;
+            position: relative; width: 180px; height: 180px;
+            margin: 0 auto 20px auto;
             display: flex; align-items: center; justify-content: center;
         }
 
@@ -75,48 +84,41 @@
 
         #compass-rose { width: 85%; height: 85%; transition: transform 0.1s linear; z-index: 2; }
         .fixed-pointer { position: absolute; top: -5px; width: 4px; height: 25px; background: var(--gold); z-index: 10; }
-        .degrees-display { position: absolute; font-family: 'Barlow Condensed'; font-size: 2rem; font-weight: 800; }
+        .degrees-display { position: absolute; font-family: 'Barlow Condensed'; font-size: 1.8rem; font-weight: 800; }
 
-        .controls { display: flex; flex-direction: column; gap: 10px; }
+        .controls { display: flex; flex-direction: column; gap: 10px; padding-bottom: 20px; }
         button { 
-            font-family: 'Inter'; font-weight: 700; padding: 16px; 
-            border-radius: 15px; border: none; text-transform: uppercase; cursor: pointer;
+            font-family: 'Inter'; font-weight: 700; padding: 15px; 
+            border-radius: 12px; border: none; text-transform: uppercase; cursor: pointer;
+            font-size: 0.85rem;
         }
 
         .btn-sensor { background: var(--gold); color: #000; }
         .btn-gpx { background: #fff; color: #000; }
-        #btn-offline { background: #2c3e50; color: #fff; display: none; border: 2px solid var(--success); }
-        
+        #btn-offline { background: #1e272e; color: #fff; display: none; border: 2px solid var(--success); }
         .btn-reset { background: transparent; color: var(--danger); border: 1px solid var(--danger); }
 
         #download-box { 
-            display: none; background: rgba(0,0,0,0.5); padding: 15px; border-radius: 15px; margin-top: 10px; 
+            display: none; background: rgba(0,0,0,0.5); padding: 12px; border-radius: 12px; margin-bottom: 10px; 
         }
-        .progress-bg { width: 100%; height: 12px; background: #333; border-radius: 6px; overflow: hidden; margin: 10px 0; }
+        .progress-bg { width: 100%; height: 10px; background: #333; border-radius: 5px; overflow: hidden; margin: 8px 0; }
         #progress-bar { width: 0%; height: 100%; background: var(--success); transition: width 0.1s; }
-        #status-text { font-size: 0.8rem; color: var(--success); font-weight: 700; text-align: center; }
-
-        .footer-credit { text-align: center; font-size: 0.65rem; color: #4b5563; margin-top: 20px; letter-spacing: 1px; }
-        .footer-credit b { color: var(--gold); }
+        #status-text { font-size: 0.75rem; color: var(--success); font-weight: 700; text-align: center; }
 
         .map-overlay {
-            position: absolute; top: 20px; right: 20px;
-            background: rgba(0, 0, 0, 0.85); padding: 12px; border-radius: 12px; border-right: 4px solid var(--gold); z-index: 1000;
+            position: absolute; top: 15px; right: 15px;
+            background: rgba(0, 0, 0, 0.85); padding: 10px; border-radius: 10px; border-right: 4px solid var(--gold); z-index: 1000;
         }
 
         .tab-bar {
-            position: fixed; bottom: 0; width: 100%; height: 70px;
+            position: fixed; bottom: 0; width: 100%; height: 75px;
             background: var(--tab-bg); display: flex; align-items: center; z-index: 2000;
+            border-top: 1px solid rgba(255,255,255,0.05);
         }
 
         .tab-item { text-align: center; color: #4b5563; flex: 1; font-size: 0.7rem; font-weight: 700; }
         .tab-item.active { color: var(--gold); }
-        .tab-item span { font-size: 1.6rem; display: block; }
-
-        .leaflet-control-layers {
-            margin-top: 15px !important; margin-left: 15px !important;
-            background: #161b2a !important; color: #fff !important; border: 2px solid var(--gold) !important;
-        }
+        .tab-item span { font-size: 1.5rem; display: block; margin-bottom: 2px; }
 
         #gpx-input { display: none; }
     </style>
@@ -126,8 +128,9 @@
     <div id="page-dash" class="page active">
         <header>
             <h1>SUA ALTEZZA</h1>
-            <div class="subtitle">Sistemi di Navigazione Reali</div>
         </header>
+
+        <div class="mem-brand">Designed by <b>Mem Software</b></div>
 
         <div class="card">
             <div class="label">Quota Attuale (m)</div>
@@ -147,180 +150,9 @@
             <div id="degrees" class="degrees-display">0°</div>
         </div>
 
+        <div id="download-box">
+            <div id="status-text">Salvataggio...</div>
+            <div class="progress-bg"><div id="progress-bar"></div></div>
+        </div>
+
         <div class="controls">
-            <button id="sensor-btn" class="btn-sensor" onclick="requestSensorPermission()">Attiva Bussola</button>
-            <button class="btn-gpx" onclick="document.getElementById('gpx-input').click()">Carica GPX</button>
-            <button id="btn-offline" class="btn-offline" onclick="downloadMapArea()">Scarica Mappa Offline</button>
-            <div id="download-box">
-                <div id="status-text">Salvataggio in corso...</div>
-                <div class="progress-bg"><div id="progress-bar"></div></div>
-            </div>
-            <input type="file" id="gpx-input" accept=".gpx" onchange="loadGPX(event)">
-            <button class="btn-reset" onclick="location.reload()">Reset App</button>
-        </div>
-
-        <div class="footer-credit">Designed by <b>Mem Software</b></div>
-    </div>
-
-    <div id="page-map" class="page">
-        <div class="map-overlay">
-            <div class="label" style="color:var(--gold); font-size: 0.6rem;">Quota</div>
-            <div style="font-size: 1.8rem; font-family: 'Barlow Condensed'; font-weight:800" id="overlay-alt">-- m</div>
-        </div>
-        <div id="map"></div>
-    </div>
-
-    <nav class="tab-bar">
-        <div class="tab-item active" id="tab-dash" onclick="switchPage('dash')">
-            <span>📊</span>DASHBOARD
-        </div>
-        <div class="tab-item" id="tab-map" onclick="switchPage('map')">
-            <span>🗺️</span>MAPPA
-        </div>
-    </nav>
-
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="https://api.mapbox.com/mapbox.js/plugins/leaflet-omnivore/v0.3.1/leaflet-omnivore.min.js"></script>
-
-    <script>
-        // --- 1. SERVICE WORKER INTEGRATO PER USO OFFLINE ---
-        // Questo script permette alla PWA di aprirsi senza internet
-        const APP_CACHE_NAME = 'sua-altezza-files-v1';
-        const MAP_CACHE_NAME = 'sua-altezza-maps-v1';
-        
-        if ('serviceWorker' in navigator) {
-            const swCode = `
-                const APP_CACHE = "${APP_CACHE_NAME}";
-                self.addEventListener('install', e => {
-                    e.waitUntil(caches.open(APP_CACHE).then(cache => cache.addAll(['./'])));
-                });
-                self.addEventListener('fetch', e => {
-                    e.respondWith(caches.match(e.request).then(res => res || fetch(e.request)));
-                });
-            `;
-            const blob = new Blob([swCode], {type: 'application/javascript'});
-            navigator.serviceWorker.register(URL.createObjectURL(blob));
-        }
-
-        // --- 2. LOGICA APP ---
-        let map, marker, gpxLayer;
-        let currentPos = { lat: null, lon: null, alt: null };
-
-        const street = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png');
-        const satellite = L.tileLayer('https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}');
-        const topo = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', { maxZoom: 17 });
-
-        function initApp() {
-            map = L.map('map', { zoomControl: false, layers: [street] }).setView([41.9, 12.5], 5);
-            L.control.layers({"Stradale": street, "Satellite": satellite, "Rilievi": topo}, null, { position: 'topleft' }).addTo(map);
-            if (navigator.geolocation) {
-                navigator.geolocation.watchPosition(updateLiveMetrics, null, { enableHighAccuracy: true });
-            }
-        }
-
-        async function downloadMapArea() {
-            if (!gpxLayer) return;
-            const btn = document.getElementById('btn-offline');
-            const box = document.getElementById('download-box');
-            const bar = document.getElementById('progress-bar');
-            const status = document.getElementById('status-text');
-            
-            box.style.display = 'block';
-            btn.style.display = 'none';
-
-            const bounds = gpxLayer.getBounds();
-            const cache = await caches.open(MAP_CACHE_NAME);
-            const zooms = [13, 14, 15]; 
-            let urls = [];
-
-            zooms.forEach(z => {
-                const nw = map.project(bounds.getNorthWest(), z).divideBy(256).floor();
-                const se = map.project(bounds.getSouthEast(), z).divideBy(256).floor();
-                for (let x = nw.x; x <= se.x; x++) {
-                    for (let y = nw.y; y <= se.y; y++) {
-                        urls.push(`https://a.tile.opentopomap.org/${z}/${x}/${y}.png`);
-                    }
-                }
-            });
-
-            let count = 0;
-            for (const url of urls) {
-                try {
-                    const res = await fetch(url);
-                    if (res.ok) await cache.put(url, res);
-                } catch (e) {}
-                count++;
-                let p = Math.round((count / urls.length) * 100);
-                bar.style.width = p + "%";
-                status.innerText = `SALVATAGGIO: ${p}%`;
-            }
-            status.innerText = "MAPPA SALVATA ✓";
-        }
-
-        function loadGPX(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                if (gpxLayer) map.removeLayer(gpxLayer);
-                gpxLayer = omnivore.gpx.parse(e.target.result);
-                gpxLayer.setStyle({ color: '#f1c40f', weight: 5 });
-                gpxLayer.addTo(map);
-                document.getElementById('btn-offline').style.display = 'block';
-                gpxLayer.on('ready', () => { map.fitBounds(gpxLayer.getBounds()); switchPage('map'); });
-            };
-            reader.readAsText(file);
-        }
-
-        function updateLiveMetrics(pos) {
-            currentPos = { lat: pos.coords.latitude, lon: pos.coords.longitude, alt: pos.coords.altitude };
-            const a = currentPos.alt ? currentPos.alt.toFixed(0) : "--";
-            document.getElementById('dash-gps').innerText = a;
-            document.getElementById('overlay-alt').innerText = a + " m";
-            const latlng = [currentPos.lat, currentPos.lon];
-            if (!marker) { 
-                marker = L.marker(latlng, {icon: L.icon({iconUrl: 'punto.png', iconSize: [40, 40], iconAnchor: [20, 20]}), zIndexOffset: 1000}).addTo(map);
-                map.setView(latlng, 16); 
-            } else { marker.setLatLng(latlng); }
-        }
-
-        const ticksGroup = document.getElementById('ticks');
-        for (let i = 0; i < 360; i += 10) {
-            const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
-            line.setAttribute("x1", "100"); line.setAttribute("y1", "12");
-            line.setAttribute("x2", "100"); line.setAttribute("y2", i % 30 === 0 ? "28" : "20");
-            line.setAttribute("transform", `rotate(${i} 100 100)`);
-            ticksGroup.appendChild(line);
-        }
-
-        async function requestSensorPermission() {
-            if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
-                const permission = await DeviceOrientationEvent.requestPermission();
-                if (permission === 'granted') window.addEventListener('deviceorientation', handleOrientation);
-            } else {
-                window.addEventListener('deviceorientation', handleOrientation);
-            }
-            document.getElementById('sensor-btn').innerText = "Bussola OK";
-        }
-
-        function handleOrientation(e) {
-            let h = e.webkitCompassHeading || (360 - e.alpha);
-            if(h !== undefined) {
-                const rh = Math.round(h);
-                document.getElementById('compass-rose').style.transform = `rotate(${-rh}deg)`;
-                document.getElementById('degrees').innerText = rh + "°";
-            }
-        }
-
-        function switchPage(p) {
-            document.querySelectorAll('.page').forEach(pg => pg.classList.remove('active'));
-            document.getElementById('page-' + p).classList.add('active');
-            document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
-            document.getElementById('tab-' + p).classList.add('active');
-            if(p === 'map') setTimeout(() => map.invalidateSize(), 300);
-        }
-
-        window.onload = initApp;
-    </script>
-</body>
-</html>
