@@ -14,6 +14,7 @@
             --bg: #0b0f1a;
             --card-bg: rgba(255, 255, 255, 0.05);
             --danger: #ff4757;
+            --success: #2ecc71;
             --tab-bg: #161b2a;
         }
 
@@ -44,10 +45,7 @@
         h1 { font-weight: 900; font-size: 1.8rem; margin: 0; color: var(--gold); text-transform: uppercase; }
         .subtitle { font-size: 0.7rem; letter-spacing: 2px; color: #64748b; text-transform: uppercase; margin-top: 5px; }
 
-        .grid-data {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
+        .single-data {
             margin-bottom: 20px;
         }
 
@@ -55,69 +53,53 @@
             background: var(--card-bg);
             border: 1px solid rgba(255, 255, 255, 0.08);
             border-radius: 20px;
-            padding: 15px;
+            padding: 20px;
             text-align: center;
         }
 
-        .label { font-size: 0.65rem; color: #64748b; font-weight: 700; text-transform: uppercase; }
-        .value { font-family: 'Barlow Condensed'; font-size: 2.2rem; font-weight: 800; }
+        .label { font-size: 0.75rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+        .value { font-family: 'Barlow Condensed'; font-size: 3.5rem; font-weight: 800; color: #fff; line-height: 1; margin-top: 10px; }
 
         .compass-area {
-            position: relative;
-            width: 200px;
-            height: 200px;
+            position: relative; width: 220px; height: 220px;
             margin: 0 auto 25px auto;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            display: flex; align-items: center; justify-content: center;
         }
 
         .compass-housing {
-            position: absolute;
-            width: 100%; height: 100%;
-            border-radius: 50%;
-            border: 2px solid rgba(255,255,255,0.1);
+            position: absolute; width: 100%; height: 100%;
+            border-radius: 50%; border: 2px solid rgba(255,255,255,0.1);
             background: radial-gradient(circle, #1a1f2e 0%, #0b0f1a 100%);
         }
 
-        #compass-rose {
-            width: 85%; height: 85%;
-            transition: transform 0.1s linear;
-            z-index: 2;
-        }
-
-        .fixed-pointer {
-            position: absolute;
-            top: -5px; width: 4px; height: 25px;
-            background: var(--gold);
-            z-index: 10;
-        }
-
-        .degrees-display {
-            position: absolute;
-            font-family: 'Barlow Condensed';
-            font-size: 1.8rem; font-weight: 800;
-        }
+        #compass-rose { width: 85%; height: 85%; transition: transform 0.1s linear; z-index: 2; }
+        .fixed-pointer { position: absolute; top: -5px; width: 4px; height: 25px; background: var(--gold); z-index: 10; }
+        .degrees-display { position: absolute; font-family: 'Barlow Condensed'; font-size: 2rem; font-weight: 800; }
 
         .controls { display: flex; flex-direction: column; gap: 12px; }
         button { 
             font-family: 'Inter'; font-weight: 700; padding: 16px; 
             border-radius: 15px; border: none; text-transform: uppercase; cursor: pointer;
+            transition: all 0.3s;
         }
 
         .btn-sensor { background: var(--gold); color: #000; }
         .btn-gpx { background: #fff; color: #000; }
+        .btn-offline { background: #2c3e50; color: #fff; display: none; }
+        .btn-offline.ready { background: var(--success); }
         .btn-reset { background: transparent; color: var(--danger); border: 1px solid var(--danger); }
 
-        .footer-credit { text-align: center; font-size: 0.6rem; color: #4b5563; margin-top: 20px; letter-spacing: 1px; }
-        .footer-credit b { color: var(--gold); }
+        /* PROGRESS BAR */
+        #download-box { display: none; margin-top: 10px; text-align: center; }
+        .progress-bg { width: 100%; height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; margin: 10px 0; overflow: hidden; }
+        #progress-bar { width: 0%; height: 100%; background: var(--success); transition: width 0.2s; }
+        #status-text { font-size: 0.7rem; color: var(--success); font-weight: 600; }
 
         .map-overlay {
-            position: absolute;
-            top: 20px; right: 20px;
+            position: absolute; top: 20px; right: 20px;
             background: rgba(0, 0, 0, 0.85);
-            padding: 12px; border-radius: 12px; border-right: 4px solid var(--gold);
-            z-index: 1000; pointer-events: none;
+            padding: 12px 20px; border-radius: 12px; border-right: 4px solid var(--gold);
+            z-index: 1000; pointer-events: none; text-align: right;
         }
 
         .tab-bar {
@@ -125,19 +107,14 @@
             background: var(--tab-bg); display: flex; align-items: center; z-index: 2000;
         }
 
-        .tab-item { text-align: center; color: #4b5563; flex: 1; font-size: 0.7rem; }
+        .tab-item { text-align: center; color: #4b5563; flex: 1; font-size: 0.7rem; font-weight: 700; }
         .tab-item.active { color: var(--gold); }
-        .tab-item span { font-size: 1.5rem; display: block; }
+        .tab-item span { font-size: 1.6rem; display: block; margin-bottom: 2px; }
 
-        /* SELETTORE MAPPA VISIBILE */
         .leaflet-control-layers {
-            margin-top: 15px !important;
-            margin-left: 15px !important;
-            background: #161b2a !important;
-            color: #fff !important;
-            border: 2px solid var(--gold) !important;
+            margin-top: 15px !important; margin-left: 15px !important;
+            background: #161b2a !important; color: #fff !important; border: 2px solid var(--gold) !important;
         }
-        .leaflet-control-layers-list label { color: white !important; }
 
         #gpx-input { display: none; }
     </style>
@@ -150,14 +127,10 @@
             <div class="subtitle">Sistemi di Navigazione Reali</div>
         </header>
 
-        <div class="grid-data">
+        <div class="single-data">
             <div class="card">
-                <div class="label">Quota (m)</div>
+                <div class="label">Quota Attuale (m.s.l.m.)</div>
                 <div id="dash-gps" class="value">--</div>
-            </div>
-            <div class="card">
-                <div class="label">Velocità (km/h)</div>
-                <div id="dash-speed" class="value">0</div>
             </div>
         </div>
 
@@ -175,19 +148,25 @@
         </div>
 
         <div class="controls">
-            <button id="sensor-btn" class="btn-sensor" onclick="requestSensorPermission()">Calibra Bussola</button>
-            <button class="btn-gpx" onclick="document.getElementById('gpx-input').click()">Carica GPX</button>
-            <input type="file" id="gpx-input" accept=".gpx" onchange="loadGPX(event)">
-            <button class="btn-reset" onclick="clearMap()">Svuota Percorso</button>
-        </div>
+            <button id="sensor-btn" class="btn-sensor" onclick="requestSensorPermission()">Attiva Bussola</button>
+            <button class="btn-gpx" onclick="document.getElementById('gpx-input').click()">Carica Percorso GPX</button>
+            
+            <button id="btn-offline" class="btn-offline" onclick="downloadMapArea()">Scarica Area Percorso</button>
+            
+            <div id="download-box">
+                <div class="progress-bg"><div id="progress-bar"></div></div>
+                <div id="status-text">Pronto al salvataggio...</div>
+            </div>
 
-        <div class="footer-credit">Designed by <b>Mem Software</b></div>
+            <input type="file" id="gpx-input" accept=".gpx" onchange="loadGPX(event)">
+            <button class="btn-reset" onclick="clearMap()">Svuota Dati</button>
+        </div>
     </div>
 
     <div id="page-map" class="page">
         <div class="map-overlay">
-            <div style="color:var(--gold); font-weight:800" id="overlay-alt">-- m</div>
-            <div id="overlay-speed">0 km/h</div>
+            <div class="label" style="color:var(--gold)">Quota</div>
+            <div style="font-size: 1.8rem; font-family: 'Barlow Condensed'; font-weight:800" id="overlay-alt">-- m</div>
         </div>
         <div id="map"></div>
     </div>
@@ -207,39 +186,104 @@
     <script>
         let map, marker, gpxLayer;
         let currentPos = { lat: null, lon: null, alt: null };
+        const CACHE_NAME = 'sua-altezza-v2';
 
-        // LAYER FUNZIONANTI SENZA CHIAVI API
         const street = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png');
         const satellite = L.tileLayer('https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}');
-        
-        // OpenTopoMap: IL MIGLIORE PER RILIEVI CON QUOTE NUMERICHE
-        const topo = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
-            maxZoom: 17,
-            attribution: 'Map data: © OpenStreetMap contributors, SRTM | Map style: © OpenTopoMap (CC-BY-SA)'
-        });
-
-        const myIcon = L.icon({
-            iconUrl: 'punto.png', 
-            iconSize: [40, 40], iconAnchor: [20, 20]
-        });
+        const topo = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', { maxZoom: 17 });
 
         function initApp() {
             map = L.map('map', { zoomControl: false, layers: [street] }).setView([41.9, 12.5], 5);
-            
-            const baseMaps = {
-                "Stradale": street,
-                "Satellite": satellite,
-                "Rilievi (Quote ON)": topo
-            };
-            
-            L.control.layers(baseMaps, null, { position: 'topleft' }).addTo(map);
-
+            L.control.layers({"Stradale": street, "Satellite": satellite, "Rilievi": topo}, null, { position: 'topleft' }).addTo(map);
             if (navigator.geolocation) {
                 navigator.geolocation.watchPosition(updateLiveMetrics, null, { enableHighAccuracy: true });
             }
         }
 
-        // DISEGNO TICKS BUSSOLA
+        // SISTEMA OFFLINE CON BARRA PROGRESSO
+        async function downloadMapArea() {
+            if (!gpxLayer) return;
+            
+            const btn = document.getElementById('btn-offline');
+            const box = document.getElementById('download-box');
+            const bar = document.getElementById('progress-bar');
+            const status = document.getElementById('status-text');
+            
+            box.style.display = 'block';
+            btn.disabled = true;
+            btn.innerText = "Salvataggio...";
+
+            const bounds = gpxLayer.getBounds();
+            const cache = await caches.open(CACHE_NAME);
+            
+            // Zoom necessari per il trekking (13=Panoramico, 15=Dettaglio sentiero)
+            const zooms = [13, 14, 15];
+            let urls = [];
+
+            zooms.forEach(z => {
+                const nw = map.project(bounds.getNorthWest(), z).divideBy(256).floor();
+                const se = map.project(bounds.getSouthEast(), z).divideBy(256).floor();
+                for (let x = nw.x; x <= se.x; x++) {
+                    for (let y = nw.y; y <= se.y; y++) {
+                        urls.push(`https://a.tile.opentopomap.org/${z}/${x}/${y}.png`);
+                    }
+                }
+            });
+
+            const total = urls.length;
+            let count = 0;
+
+            for (const url of urls) {
+                try {
+                    const response = await fetch(url);
+                    if (response.ok) {
+                        await cache.put(url, response);
+                    }
+                } catch (e) {}
+                count++;
+                let p = Math.round((count / total) * 100);
+                bar.style.width = p + "%";
+                status.innerText = `Scaricamento: ${p}% (${count}/${total})`;
+            }
+
+            status.innerText = "MAPPA DISPONIBILE OFFLINE ✓";
+            btn.classList.add('ready');
+            btn.innerText = "Area Salvata";
+        }
+
+        function loadGPX(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                if (gpxLayer) map.removeLayer(gpxLayer);
+                gpxLayer = omnivore.gpx.parse(e.target.result);
+                gpxLayer.setStyle({ color: '#f1c40f', weight: 5 });
+                gpxLayer.addTo(map);
+                gpxLayer.on('ready', () => { 
+                    map.fitBounds(gpxLayer.getBounds()); 
+                    document.getElementById('btn-offline').style.display = 'block';
+                    document.getElementById('btn-offline').innerText = "Scarica Area Percorso";
+                    document.getElementById('btn-offline').classList.remove('ready');
+                    document.getElementById('download-box').style.display = 'none';
+                    switchPage('map'); 
+                });
+            };
+            reader.readAsText(file);
+        }
+
+        function updateLiveMetrics(pos) {
+            currentPos = { lat: pos.coords.latitude, lon: pos.coords.longitude, alt: pos.coords.altitude };
+            document.getElementById('dash-gps').innerText = currentPos.alt ? currentPos.alt.toFixed(0) : "--";
+            document.getElementById('overlay-alt').innerText = (currentPos.alt ? currentPos.alt.toFixed(0) : "--") + " m";
+            const latlng = [currentPos.lat, currentPos.lon];
+            if (!marker) { 
+                marker = L.marker(latlng, {icon: L.icon({iconUrl: 'punto.png', iconSize: [40, 40], iconAnchor: [20, 20]}), zIndexOffset: 1000}).addTo(map);
+                map.setView(latlng, 16); 
+            } else { marker.setLatLng(latlng); }
+        }
+
+        // BUSSOLA
         const ticksGroup = document.getElementById('ticks');
         for (let i = 0; i < 360; i += 10) {
             const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
@@ -249,24 +293,16 @@
             ticksGroup.appendChild(line);
         }
 
-        function switchPage(p) {
-            document.querySelectorAll('.page').forEach(pg => pg.classList.remove('active'));
-            document.getElementById('page-' + p).classList.add('active');
-            document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
-            document.getElementById('tab-' + p).classList.add('active');
-            if(p === 'map') setTimeout(() => map.invalidateSize(), 300);
-        }
-
         async function requestSensorPermission() {
             if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
                 const permission = await DeviceOrientationEvent.requestPermission();
                 if (permission === 'granted') {
                     window.addEventListener('deviceorientation', handleOrientation);
-                    document.getElementById('sensor-btn').innerText = "Attivo";
+                    document.getElementById('sensor-btn').innerText = "Bussola ON";
                 }
             } else {
                 window.addEventListener('deviceorientation', handleOrientation);
-                document.getElementById('sensor-btn').innerText = "Attivo";
+                document.getElementById('sensor-btn').innerText = "Bussola ON";
             }
         }
 
@@ -279,35 +315,19 @@
             }
         }
 
-        function updateLiveMetrics(pos) {
-            currentPos = { lat: pos.coords.latitude, lon: pos.coords.longitude, alt: pos.coords.altitude };
-            let s = pos.coords.speed ? (pos.coords.speed * 3.6).toFixed(0) : 0;
-            document.getElementById('dash-speed').innerText = s;
-            document.getElementById('dash-gps').innerText = currentPos.alt ? currentPos.alt.toFixed(0) : "--";
-            document.getElementById('overlay-alt').innerText = (currentPos.alt ? currentPos.alt.toFixed(0) : "--") + " m";
-            document.getElementById('overlay-speed').innerText = s + " km/h";
-            const latlng = [currentPos.lat, currentPos.lon];
-            if (!marker) { 
-                marker = L.marker(latlng, {icon: myIcon, zIndexOffset: 1000}).addTo(map);
-                map.setView(latlng, 16); 
-            } else { marker.setLatLng(latlng); }
+        function switchPage(p) {
+            document.querySelectorAll('.page').forEach(pg => pg.classList.remove('active'));
+            document.getElementById('page-' + p).classList.add('active');
+            document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+            document.getElementById('tab-' + p).classList.add('active');
+            if(p === 'map') setTimeout(() => map.invalidateSize(), 300);
         }
 
-        function loadGPX(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                if (gpxLayer) map.removeLayer(gpxLayer);
-                gpxLayer = omnivore.gpx.parse(e.target.result);
-                gpxLayer.setStyle({ color: '#f1c40f', weight: 5 });
-                gpxLayer.addTo(map);
-                gpxLayer.on('ready', () => { map.fitBounds(gpxLayer.getBounds()); switchPage('map'); });
-            };
-            reader.readAsText(file);
+        function clearMap() { 
+            if (gpxLayer) { map.removeLayer(gpxLayer); gpxLayer = null; } 
+            document.getElementById('btn-offline').style.display = 'none';
+            document.getElementById('download-box').style.display = 'none';
         }
-
-        function clearMap() { if (gpxLayer) { map.removeLayer(gpxLayer); gpxLayer = null; } }
 
         window.onload = initApp;
     </script>
