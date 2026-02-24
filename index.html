@@ -2,413 +2,471 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Sua Altezza - Mem Software</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sua Altezza V51 - Enterprise Edition</title>
 
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;900&family=Barlow+Condensed:wght@700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;900&family=Barlow+Condensed:wght@700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
+    
     <style>
-        :root {
-            --gold: #f1c40f; --bg: #0b0f1a; --card-bg: rgba(255, 255, 255, 0.08);
-            --danger: #ff4757; --success: #2ecc71; --tab-bg: #161b2a; --text: #ffffff;
+        :root { 
+            --gold: #f1c40f; 
+            --bg: #0b0f1a; 
+            --card-bg: rgba(0, 0, 0, 0.7); 
+            --danger: #ff4757; 
+            --success: #2ecc71; 
+            --tab-bg: #161b2a; 
+            --text: #ffffff; 
         }
 
-        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 0; overflow: hidden; height: 100vh; }
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background: var(--bg); 
+            color: var(--text); 
+            margin: 0; 
+            padding: 0; 
+            overflow: hidden; 
+            height: 100vh; 
+        }
         
-        #splash-screen {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: #0b0f1a; display: flex; flex-direction: column;
-            align-items: center; justify-content: center; z-index: 9999;
-            transition: opacity 1s ease, visibility 1s;
+        /* Splash Screen ottimizzato */
+        #splash-screen { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: #0b0f1a; display: flex; flex-direction: column; 
+            align-items: center; justify-content: center; z-index: 9999; 
+            transition: opacity 0.8s ease, visibility 0.8s; 
         }
-
-        .page { display: none; height: calc(100vh - 75px); width: 100%; padding: 15px; box-sizing: border-box; overflow-y: auto; }
+        
+        .page { display: none; height: calc(100vh - 75px); width: 100%; padding: 10px; box-sizing: border-box; overflow-y: auto; }
         .page.active { display: block; }
-
-        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
-        .card { background: var(--card-bg); border: 1px solid var(--gold); border-radius: 12px; padding: 8px; text-align: center; }
-        .card-label { font-size: 0.55rem; color: #64748b; text-transform: uppercase; font-weight: 700; margin-bottom: 2px; }
-        .value { font-family: 'Barlow Condensed'; font-size: 1.5rem; font-weight: 800; color: var(--gold); line-height: 1.1; }
-
-        .compass-area { position: relative; width: 120px; height: 120px; margin: 5px auto; display: flex; align-items: center; justify-content: center; }
-        .compass-housing { position: absolute; width: 100%; height: 100%; border-radius: 50%; border: 2px solid rgba(255,255,255,0.1); background: radial-gradient(circle, #1a1f2e 0%, #0b0f1a 100%); }
-        #compass-rose { width: 85%; height: 85%; transition: transform 0.1s linear; z-index: 2; }
-        .fixed-pointer { position: absolute; top: -5px; width: 4px; height: 15px; background: var(--gold); z-index: 10; border-radius: 2px; }
-        .degrees-display { position: absolute; font-family: 'Barlow Condensed'; font-size: 1.1rem; font-weight: 800; z-index: 5; top: 52%; }
-
-        .chart-box { background: rgba(0,0,0,0.3); border-radius: 15px; padding: 10px; height: 100px; margin-top: 5px; }
-
-        #toolbox-panel { position: fixed; bottom: 85px; left: 15px; right: 15px; background: var(--tab-bg); border: 2px solid var(--gold); border-radius: 20px; padding: 20px; display: none; z-index: 3000; max-height: 70vh; overflow-y: auto; }
         
-        #download-box { display: none; background: rgba(46, 204, 113, 0.1); padding: 10px; border-radius: 12px; margin-bottom: 10px; border: 1px dashed var(--success); }
-        .progress-bg { width: 100%; height: 8px; background: #333; border-radius: 4px; overflow: hidden; margin: 5px 0; }
-        #progress-bar { width: 0%; height: 100%; background: var(--success); }
-
-        button { font-family: 'Inter'; font-weight: 700; border-radius: 12px; border: none; text-transform: uppercase; cursor: pointer; width: 100%; padding: 12px; margin-bottom: 6px; font-size: 0.75rem; }
-        .btn-sensor { background: var(--gold); color: black; }
-        .btn-sos { background: var(--danger); color: white; border: 1px solid white; }
-        .btn-white { background: white; color: black; }
-        .btn-offline { background: var(--success); color: black; }
-        .btn-progetto { background: #8e44ad; color: white; }
-
-        /* EDITOR UI */
-        #editor-info { 
-            position: absolute; top: 10px; left: 50%; transform: translateX(-50%);
-            background: rgba(0,0,0,0.9); padding: 10px 20px; border-radius: 30px;
-            border: 2px solid var(--success); z-index: 2000; display: none;
-            text-align: center; width: 80%; pointer-events: none;
-        }
-        #editor-controls {
-            position: absolute; bottom: 20px; left: 10px; right: 10px;
-            display: none; z-index: 2000; gap: 10px;
-        }
-
-        .map-overlay-btn { 
-            position: absolute; bottom: 20px; right: 20px; 
-            width: 50px; height: 50px; background: var(--tab-bg); 
-            border: 2px solid var(--gold); border-radius: 50%; 
-            z-index: 1000; display: flex; align-items: center; 
-            justify-content: center; font-size: 1.5rem; color: var(--gold);
-        }
-
-        /* METEO STYLE */
-        .meteo-hero { text-align: center; margin-top: 50px; }
-        .pressure-val { font-size: 4rem; font-family: 'Barlow Condensed'; font-weight: 800; color: var(--success); }
-        .storm-alert { background: rgba(255, 71, 87, 0.2); border: 2px solid var(--danger); padding: 15px; border-radius: 15px; margin-top: 20px; display: none; }
-
-        .tab-bar { position: fixed; bottom: 0; width: 100%; height: 75px; background: var(--tab-bg); display: flex; align-items: center; z-index: 2000; border-top: 1px solid rgba(255,255,255,0.05); }
-        .tab-item { text-align: center; color: #4b5563; flex: 1; font-size: 0.65rem; font-weight: 700; }
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
+        .card { background: var(--card-bg); border: 1px solid var(--gold); border-radius: 12px; padding: 12px; text-align: center; }
+        .card-label { font-size: 0.75rem; color: #cbd5e1; text-transform: uppercase; font-weight: 800; margin-bottom: 4px; }
+        .value { font-family: 'Barlow Condensed'; font-size: 2.4rem; font-weight: 900; color: var(--gold); line-height: 1; }
+        
+        .chart-container { background: rgba(0,0,0,0.6); border-radius: 15px; padding: 12px; height: 180px; margin: 10px 0; border: 1px solid rgba(255,255,255,0.1); position: relative; }
+        
+        .compass-row { display: flex; align-items: center; justify-content: space-around; margin: 15px 0; background: rgba(255,255,255,0.03); border-radius: 20px; padding: 15px; border: 1px solid rgba(255,255,255,0.05); }
+        .compass-area { position: relative; width: 130px; height: 130px; }
+        .compass-housing { position: absolute; width: 100%; height: 100%; border-radius: 50%; border: 2px solid var(--gold); box-sizing: border-box; box-shadow: 0 0 15px rgba(241,196,15,0.2); }
+        #compass-rose { width: 100%; height: 100%; transition: transform 0.1s linear; }
+        
+        #degrees { font-family: 'Barlow Condensed'; font-size: 3.5rem; font-weight: 900; color: var(--gold); line-height: 1; }
+        
+        #toolbox-panel { position: fixed; bottom: 85px; left: 10px; right: 10px; background: var(--tab-bg); border: 2px solid var(--gold); border-radius: 20px; padding: 20px; display: none; z-index: 3000; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        
+        button { font-family: 'Inter'; font-weight: 800; border-radius: 12px; border: none; text-transform: uppercase; padding: 15px; margin-bottom: 10px; font-size: 0.85rem; width: 100%; cursor: pointer; transition: transform 0.1s; }
+        button:active { transform: scale(0.98); }
+        .btn-sensor { background: var(--gold); color: #000; }
+        .btn-white { background: #fff; color: #000; }
+        
+        .tab-bar { position: fixed; bottom: 0; width: 100%; height: 75px; background: var(--tab-bg); display: flex; align-items: center; z-index: 2000; border-top: 1px solid rgba(255,255,255,0.1); }
+        .tab-item { text-align: center; color: #64748b; flex: 1; font-size: 0.7rem; font-weight: 800; cursor: pointer; }
         .tab-item.active { color: var(--gold); }
-        .tab-item span { font-size: 1.5rem; display: block; }
+        .tab-item span { font-size: 1.8rem; display: block; margin-bottom: 2px; }
+        
         #map { height: 100%; width: 100%; background: #000; }
+        
+        .map-overlay-btn { position: absolute; right: 15px; background: white; border-radius: 10px; width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; box-shadow: 0 4px 10px rgba(0,0,0,0.4); z-index: 1000; border: none; color: black; }
+        #btn-recenter { top: 80px; }
+
+        .user-marker-icon { display: flex; align-items: center; justify-content: center; transition: transform 0.1s linear; }
     </style>
 </head>
 <body>
 
-    <div id="splash-screen">
-        <h1 style="color:var(--gold); font-weight:900; margin:0; font-size:2.5rem;">SUA ALTEZZA</h1>
-        <div style="color:#64748b; letter-spacing:3px; font-size:0.8rem;">SISTEMI DI NAVIGAZIONE REALI</div>
-        <div style="margin-top:40px; color:rgba(255,255,255,0.3); font-size:0.7rem;">Designed by <b>Mem Software</b></div>
+    <div id="splash-screen" role="presentation">
+        <h1 style="color:var(--gold); font-weight:900; margin:0; font-size:3rem; letter-spacing:-1px;">SUA ALTEZZA</h1>
+        <div style="color:#64748b; letter-spacing:4px; font-size:0.8rem; margin-top:5px; font-weight:700;">NAVIGAZIONE ALTIMETRICA</div>
+        <div style="margin-top:80px; color:rgba(255,255,255,0.3); font-size:0.75rem;">Engineered by <b>Mem Software</b></div>
     </div>
 
     <div id="page-dash" class="page active">
         <div class="stats-grid">
-            <div class="card"><div class="card-label">Quota</div><div id="dash-alt" class="value">--</div></div>
+            <div class="card"><div class="card-label">Quota Attuale</div><div id="dash-alt" class="value">--</div></div>
             <div class="card"><div class="card-label">Pendenza</div><div id="dash-slope" class="value">0%</div></div>
         </div>
         <div class="stats-grid">
-            <div class="card"><div class="card-label">Km Fatti</div><div id="dash-done" class="value">0.0</div></div>
-            <div class="card"><div class="card-label">Km Restanti</div><div id="dash-todo" class="value">--</div></div>
+            <div class="card" style="border-color: var(--success)"><div class="card-label">D+ Accumulato</div><div id="dash-up-done" class="value" style="color:var(--success)">0</div></div>
+            <div class="card" style="border-color: var(--danger)"><div class="card-label">D+ Mancante</div><div id="dash-up-todo" class="value" style="color:var(--danger)">--</div></div>
         </div>
+        
+        <div class="chart-container">
+            <canvas id="altChart"></canvas>
+        </div>
+
         <div class="stats-grid">
-            <div class="card" style="border-color: var(--success);"><div class="card-label">D+ Fatto</div><div id="dash-up-done" class="value">0</div></div>
-            <div class="card" style="border-color: var(--danger);"><div class="card-label">D+ Restante</div><div id="dash-up-todo" class="value">--</div></div>
+            <div class="card"><div class="card-label">Distanza Km</div><div id="dash-done" class="value">0.0</div></div>
+            <div class="card"><div class="card-label">Residuo Km</div><div id="dash-todo" class="value">--</div></div>
         </div>
 
-        <div class="compass-area">
-            <div class="compass-housing"></div>
-            <div class="fixed-pointer"></div>
-            <svg id="compass-rose" viewBox="0 0 200 200">
-                <text x="100" y="32" fill="#f1c40f" font-family="Barlow Condensed" font-size="28" text-anchor="middle" font-weight="900">N</text>
-                <text x="100" y="185" fill="#fff" font-family="Barlow Condensed" font-size="22" text-anchor="middle">S</text>
-            </svg>
-            <div id="degrees" class="degrees-display">0°</div>
+        <div class="compass-row">
+            <div class="compass-area">
+                <div class="compass-housing"></div>
+                <svg id="compass-rose" viewBox="0 0 200 200" aria-hidden="true">
+                    <circle cx="100" cy="100" r="95" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+                    <text x="100" y="35" fill="#f1c40f" font-family="Barlow Condensed" font-size="40" text-anchor="middle" font-weight="900">N</text>
+                    <text x="100" y="185" fill="white" font-size="20" text-anchor="middle">S</text>
+                    <text x="175" y="110" fill="white" font-size="20" text-anchor="middle">E</text>
+                    <text x="25" y="110" fill="white" font-size="20" text-anchor="middle">O</text>
+                </svg>
+            </div>
+            <div style="text-align:center">
+                <div id="degrees">0°</div>
+                <button class="btn-sensor" onclick="sensors.requestPermissions()" style="width:auto; padding:8px 15px; font-size:0.65rem;">CALIBRA BUSSOLA</button>
+            </div>
         </div>
+        <button class="btn-white" onclick="ui.toggleToolbox()" style="border: 2px solid var(--gold);">🧰 TOOLBOX STRUMENTI</button>
+    </div>
 
-        <div class="chart-box"><canvas id="altChart"></canvas></div>
+    <div id="page-map" class="page" style="padding:0; position:relative;">
+        <div id="map"></div>
+        <button id="btn-recenter" class="map-overlay-btn" aria-label="Ricentra posizione">🎯</button>
+        <div style="position:absolute; bottom:20px; left:10px; right:10px; display:none; gap:10px; z-index:2000;" id="editor-controls">
+            <button class="btn-white" style="flex:1" onclick="editor.undo()">ANNULLA</button>
+            <button style="background:var(--success); color:black; flex:2" onclick="editor.save()">SALVA PERCORSO</button>
+        </div>
+    </div>
 
-        <button id="sensor-btn" class="btn-sensor" style="margin-top:10px;" onclick="requestSensorPermission()">🧭 ATTIVA BUSSOLA</button>
-        <button class="btn-white" onclick="toggleToolbox()">🧰 TOOLBOX</button>
-
-        <div id="download-box">
-            <div id="status-text" style="font-size:0.7rem; color:var(--success); font-weight:700; text-align:center;">Scarico...</div>
-            <div class="progress-bg"><div id="progress-bar"></div></div>
+    <div id="page-meteo" class="page">
+        <div style="text-align:center; margin-top:50px;">
+            <div class="card-label" style="font-size:1.2rem;">Pressione Barometrica</div>
+            <div id="baro-val" style="font-size:5.5rem; font-weight:900; color:var(--success); font-family:'Barlow Condensed';">---</div>
+            <div id="baro-status" style="color:#64748b; font-size: 1.2rem;">hPa (mbar)</div>
+            <p id="baro-error" style="color:var(--danger); display:none; margin-top:20px;">Sensore barometrico non rilevato sul dispositivo.</p>
         </div>
     </div>
 
     <div id="toolbox-panel">
-        <h3 style="text-align:center; color:var(--gold); margin-top:0;">TOOLBOX</h3>
-        <button class="btn-progetto" onclick="startEditor()">✍️ PROGETTA ITINERARIO</button>
-        <button class="btn-sos" onclick="sendSOS()">🚨 SOS COORDINATE (SMS)</button>
-        <button class="btn-white" onclick="checkSensors()">🔍 CHECK-UP SENSORI</button>
-        <button class="btn-white" onclick="alert('Foto Overlay: In sviluppo')">📸 FOTO OVERLAY DATI</button>
-        <button class="btn-white" onclick="document.getElementById('gpx-input').click()">🗺️ CARICA GPX</button>
-        <button class="btn-offline" onclick="downloadMapArea()">💾 SALVA MAPPA OFFLINE</button>
-        <button class="btn-white" style="background:#444; color:white" onclick="clearBreadcrumbs()">🗑️ CANCELLA TRACCIA</button>
-        <button class="btn-white" style="background:#222; color:white" onclick="toggleToolbox()">CHIUDI</button>
-        <input type="file" id="gpx-input" style="display:none" onchange="handleFileSelect(event)">
-    </div>
-
-    <div id="page-map" class="page" style="padding:0; position:relative;">
-        <div id="editor-info">
-            <div style="color:var(--success); font-weight:900; font-size:0.8rem;">MODALITÀ PROGETTO</div>
-            <div id="edit-stats" style="font-size:0.7rem; color:white;">Tocca i sentieri sulla mappa</div>
-        </div>
-        <div id="map"></div>
-        <div id="editor-controls">
-            <button class="btn-white" style="flex:1" onclick="undoEditor()">ANNULLA</button>
-            <button class="btn-success" style="flex:2" onclick="saveEditor()">SALVA PERCORSO</button>
-        </div>
-        <div id="map-center-btn" class="map-overlay-btn" onclick="centerOnMe()">🎯</div>
-    </div>
-
-    <div id="page-meteo" class="page">
-        <div class="meteo-hero">
-            <div class="card-label">Pressione Atmosferica</div>
-            <div id="baro-val" class="pressure-val">--</div>
-            <div style="color:#64748b; font-weight:700;">hPa</div>
-            <div id="meteo-alert" class="storm-alert">
-                <div style="font-weight:900;">⚠️ ALLERTA TEMPORALE</div>
-                <div style="font-size:0.7rem;">Crollo pressione rilevato!</div>
-            </div>
-        </div>
+        <button style="background:var(--success); color:black;" onclick="editor.start()">✍️ DISEGNA NUOVO PERCORSO</button>
+        <button style="background:var(--danger); color:white;" onclick="geo.sendSOS()">🚨 SOS COORDINATE</button>
+        <button class="btn-white" onclick="document.getElementById('gpx-input').click()">🗺️ IMPORTA GPX</button>
+        <button class="btn-white" style="background:#333; color:white;" onclick="storage.fullReset()">🗑️ RESET TOTALE DATI</button>
+        <button class="btn-white" onclick="ui.toggleToolbox()">CHIUDI</button>
+        <input type="file" id="gpx-input" style="display:none" onchange="editor.handleFileUpload(event)">
     </div>
 
     <nav class="tab-bar">
-        <div class="tab-item active" id="tab-dash" onclick="switchPage('dash')"><span>📊</span>HOME</div>
-        <div class="tab-item" id="tab-map" onclick="switchPage('map')"><span>🗺️</span>MAPPA</div>
-        <div class="tab-item" id="tab-meteo" onclick="switchPage('meteo')"><span>☁️</span>METEO</div>
+        <div class="tab-item active" id="tab-dash" onclick="ui.switchPage('dash')"><span>📊</span>DASHBOARD</div>
+        <div class="tab-item" id="tab-map" onclick="ui.switchPage('map')"><span>🗺️</span>MAPPA</div>
+        <div class="tab-item" id="tab-meteo" onclick="ui.switchPage('meteo')"><span>☁️</span>BAROMETRO</div>
     </nav>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://api.mapbox.com/mapbox.js/plugins/leaflet-omnivore/v0.3.1/leaflet-omnivore.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <script>
-        let map, marker, gpxLayer, breadcrumbLayer, altChart;
-        let myHistory = [], gpxPoints = [], editorPoints = [], editorMarkers = [], pressureLog = [];
-        let isEditing = false, editLine;
+    /**
+     * ARCHITETTURA "SUA ALTEZZA V51"
+     * Organizzazione modulare per massima manutenibilità
+     */
 
-        setTimeout(() => {
-            const s = document.getElementById('splash-screen');
-            s.style.opacity = '0';
-            setTimeout(() => s.style.visibility = 'hidden', 1000);
-        }, 3000);
+    // --- CONFIGURAZIONE E STATO ---
+    const APP_STATE = {
+        history: [],        // JSON: {lat, lng, alt}
+        routePoints: [],    // JSON: punti del percorso caricato
+        heading: 0,
+        isEditing: false,
+        lastPos: null
+    };
 
-        function initApp() {
-            const osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png');
+    // --- MODULO STORAGE (Solo JSON) ---
+    const storage = {
+        save(key, data) { localStorage.setItem(key, JSON.stringify(data)); },
+        load(key) { 
+            const data = localStorage.getItem(key);
+            try { return data ? JSON.parse(data) : null; } catch(e) { return null; }
+        },
+        fullReset() { 
+            if(confirm("Attenzione: questo eliminerà tutti i dati salvati e i percorsi. Procedere?")) {
+                localStorage.clear(); 
+                location.reload(); 
+            }
+        }
+    };
+
+    // --- MODULO GEOLOCALIZZAZIONE ---
+    const geo = {
+        init() {
+            if ("geolocation" in navigator) {
+                navigator.geolocation.watchPosition(this.onUpdate, this.onError, {
+                    enableHighAccuracy: true,
+                    maximumAge: 1000
+                });
+            }
+        },
+        onUpdate(pos) {
+            const { latitude, longitude, altitude } = pos.coords;
+            const currentAlt = altitude || 0;
+            const ll = [latitude, longitude];
+            
+            APP_STATE.lastPos = ll;
+            document.getElementById('dash-alt').innerText = Math.round(currentAlt);
+
+            // Update Map Marker
+            mapManager.updateUserMarker(ll, currentAlt);
+
+            // Breadcrumb Logic (Salvataggio ogni 10 metri)
+            if (APP_STATE.history.length === 0 || 
+                L.latLng(ll).distanceTo(L.latLng(APP_STATE.history[APP_STATE.history.length-1])) > 10) {
+                
+                APP_STATE.history.push({lat: latitude, lng: longitude, alt: currentAlt});
+                mapManager.breadcrumbLayer.setLatLngs(APP_STATE.history.map(p => [p.lat, p.lng]));
+                storage.save('v51_breadcrumb_json', APP_STATE.history);
+            }
+            
+            ui.updateDashboard(ll);
+        },
+        onError(err) { console.warn(`Errore GPS: ${err.message}`); },
+        sendSOS() {
+            if(!APP_STATE.lastPos) return alert("Posizione non disponibile");
+            const msg = `SOS! Coordinate: ${APP_STATE.lastPos[0].toFixed(6)}, ${APP_STATE.lastPos[1].toFixed(6)}`;
+            navigator.clipboard.writeText(msg).then(() => alert("Coordinate SOS copiate negli appunti!"));
+        }
+    };
+
+    // --- MODULO MAPPA ---
+    const mapManager = {
+        map: null,
+        marker: null,
+        gpxLayer: null,
+        breadcrumbLayer: null,
+        editLine: null,
+
+        init() {
+            const std = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png');
             const topo = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png');
             const sat = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}');
 
-            map = L.map('map', { zoomControl: false, layers: [osm] }).setView([45.0, 7.0], 13);
-            L.control.layers({"Standard": osm, "Topografica": topo, "Satellite": sat}, null, {position: 'topright'}).addTo(map);
+            this.map = L.map('map', { zoomControl: false, layers: [std] }).setView([45.8, 9.0], 13);
+            L.control.layers({"Mappa": std, "Topografica": topo, "Satellite": sat}, null, {position: 'topright'}).addTo(this.map);
 
-            breadcrumbLayer = L.polyline([], {color: '#00d2ff', weight: 4, dashArray: '5, 8'}).addTo(map);
-            editLine = L.polyline([], {color: '#2ecc71', weight: 5, dashArray: '10, 10'}).addTo(map);
+            this.breadcrumbLayer = L.polyline([], {color: '#00d2ff', weight: 4, opacity: 0.8}).addTo(this.map);
+            this.editLine = L.polyline([], {color: '#2ecc71', weight: 5, dashArray: '10, 10'}).addTo(this.map);
 
-            if (localStorage.getItem('my_breadcrumb_json')) {
-                myHistory = JSON.parse(localStorage.getItem('my_breadcrumb_json'));
-                breadcrumbLayer.setLatLngs(myHistory);
+            // Caricamento dati iniziali
+            const savedBreadcrumb = storage.load('v51_breadcrumb_json');
+            if(savedBreadcrumb) {
+                APP_STATE.history = savedBreadcrumb;
+                this.breadcrumbLayer.setLatLngs(savedBreadcrumb.map(p => [p.lat, p.lng]));
             }
-            if (localStorage.getItem('saved_path_json')) renderGPX(localStorage.getItem('saved_path_json'));
 
-            navigator.geolocation.watchPosition(updatePos, null, { enableHighAccuracy: true });
-            initChart();
-            startBarometer();
+            const savedPath = localStorage.getItem('v51_saved_path_raw'); // Manteniamo compatibilità per caricamento
+            if(savedPath) editor.renderPath(savedPath);
 
-            map.on('click', function(e) { if(isEditing) addEditorPoint(e.latlng); });
+            document.getElementById('btn-recenter').onclick = () => {
+                if(this.marker) this.map.setView(this.marker.getLatLng(), 16);
+            };
+
+            this.map.on('click', e => { if(APP_STATE.isEditing) editor.addPoint(e.latlng); });
+        },
+
+        updateUserMarker(ll, alt) {
+            const iconHtml = `<div class="user-marker-icon" style="transform: rotate(${APP_STATE.heading}deg)">
+                                <img src="https://raw.githubusercontent.com/AlleRock/sua_altezza/main/punto.png" width="40" height="40" onerror="this.src='https://cdn-icons-png.flaticon.com/512/684/684908.png'">
+                             </div>`;
+            const icon = L.divIcon({ className: '', html: iconHtml, iconSize: [40, 40], iconAnchor: [20, 20] });
+
+            if (!this.marker) this.marker = L.marker(ll, {icon}).addTo(this.map);
+            else { this.marker.setLatLng(ll); this.marker.setIcon(icon); }
         }
+    };
 
-        // --- EDITOR ---
-        function startEditor() {
-            isEditing = true; toggleToolbox(); switchPage('map');
-            document.getElementById('editor-info').style.display = 'block';
+    // --- MODULO EDITOR PERCORSI ---
+    const editor = {
+        tempPoints: [],
+        start() {
+            APP_STATE.isEditing = true;
+            ui.toggleToolbox();
+            ui.switchPage('map');
             document.getElementById('editor-controls').style.display = 'flex';
-            document.getElementById('map-center-btn').style.display = 'none';
-            editorPoints = []; editorMarkers.forEach(m => map.removeLayer(m)); editorMarkers = []; editLine.setLatLngs([]);
-        }
-
-        async function addEditorPoint(latlng) {
-            const lastPoint = editorPoints[editorPoints.length - 1];
-            let newSegment = [latlng];
-            if (lastPoint) {
+        },
+        async addPoint(latlng) {
+            const last = this.tempPoints[this.tempPoints.length - 1];
+            if (last) {
+                // Rotte per escursionismo via OSRM
                 try {
-                    const res = await fetch(`https://router.project-osrm.org/route/v1/foot/${lastPoint.lng},${lastPoint.lat};${latlng.lng},${latlng.lat}?geometries=geojson`);
+                    const res = await fetch(`https://router.project-osrm.org/route/v1/hiking/${last.lng},${last.lat};${latlng.lng},${latlng.lat}?geometries=geojson`);
                     const data = await res.json();
-                    if (data.routes.length > 0) newSegment = data.routes[0].geometry.coordinates.map(c => L.latLng(c[1], c[0]));
-                } catch (e) {}
+                    if (data.routes && data.routes[0]) {
+                        const segment = data.routes[0].geometry.coordinates.map(c => L.latLng(c[1], c[0]));
+                        mapManager.editLine.setLatLngs(mapManager.editLine.getLatLngs().concat(segment));
+                    }
+                } catch(e) { mapManager.editLine.addLatLng(latlng); }
+            } else {
+                mapManager.editLine.addLatLng(latlng);
             }
-            editorPoints.push(latlng);
-            const m = L.circleMarker(latlng, {radius: 6, color: '#2ecc71', fillOpacity: 1}).addTo(map);
-            editorMarkers.push(m);
-            editLine.setLatLngs(editLine.getLatLngs().concat(newSegment));
-            updateEditorStats();
-        }
-
-        function updateEditorStats() {
-            let d = 0; const pts = editLine.getLatLngs();
-            for(let i=1; i<pts.length; i++) d += pts[i-1].distanceTo(pts[i]);
-            document.getElementById('edit-stats').innerText = `${(d/1000).toFixed(2)} km | Punti: ${editorPoints.length}`;
-        }
-
-        function undoEditor() {
-            if (editorPoints.length > 0) {
-                editorPoints.pop(); map.removeLayer(editorMarkers.pop());
-                if (editorPoints.length === 0) editLine.setLatLngs([]);
-                updateEditorStats();
-            }
-        }
-
-        function saveEditor() {
-            const coords = editLine.getLatLngs();
-            if (coords.length < 2) return alert("Pochi punti!");
-            const fakeGPX = `<?xml version="1.0" encoding="UTF-8"?><gpx version="1.1"><trk><trkseg>` + 
-                coords.map(c => `<trkpt lat="${c.lat}" lon="${c.lng}"><ele>0</ele></trkpt>`).join('') + 
-                `</trkseg></trk></gpx>`;
-            localStorage.setItem('saved_path_json', fakeGPX);
-            renderGPX(fakeGPX);
-            exitEditor();
-        }
-
-        function exitEditor() {
-            isEditing = false;
-            document.getElementById('editor-info').style.display = 'none';
-            document.getElementById('editor-controls').style.display = 'none';
-            document.getElementById('map-center-btn').style.display = 'flex';
-            editorMarkers.forEach(m => map.removeLayer(m));
-            editLine.setLatLngs([]);
-            switchPage('dash');
-        }
-
-        // --- METEO ---
-        function startBarometer() {
-            if ('PressureSensor' in window) {
-                const s = new PressureSensor({frequency: 1});
-                s.addEventListener('reading', () => {
-                    const p = s.pressure.toFixed(1);
-                    document.getElementById('baro-val').innerText = p;
-                    pressureLog.push({t: Date.now(), v: p});
-                    pressureLog = pressureLog.filter(x => Date.now() - x.t < 10800000);
-                    if(pressureLog.length > 10 && (pressureLog[0].v - p) > 2) document.getElementById('meteo-alert').style.display = 'block';
-                });
-                s.start();
-            }
-        }
-
-        // --- CORE ---
-        function updatePos(pos) {
-            const latlng = [pos.coords.latitude, pos.coords.longitude];
-            const alt = pos.coords.altitude || 0;
-            document.getElementById('dash-alt').innerText = alt.toFixed(0);
-            if (!marker) {
-                marker = L.marker(latlng, { icon: L.icon({ iconUrl: "https://raw.githubusercontent.com/AlleRock/sua_altezza/main/punto.png", iconSize: [45, 45] }) }).addTo(map);
-                map.setView(latlng, 16);
-            } else marker.setLatLng(latlng);
-            
-            if (myHistory.length === 0 || L.latLng(latlng).distanceTo(L.latLng(myHistory[myHistory.length-1])) > 5) {
-                myHistory.push({lat: latlng[0], lng: latlng[1], alt: alt});
-                breadcrumbLayer.setLatLngs(myHistory);
-                localStorage.setItem('my_breadcrumb_json', JSON.stringify(myHistory));
-                updateStats(latlng);
-            }
-        }
-
-        function updateStats(ll) {
-            let gain = 0;
-            for(let i=1; i<myHistory.length; i++) {
-                let d = myHistory[i].alt - myHistory[i-1].alt;
-                if(d > 0) gain += d;
-            }
-            document.getElementById('dash-up-done').innerText = Math.round(gain);
-            document.getElementById('dash-done').innerText = (myHistory.length * 0.005).toFixed(1);
-            
-            if(gpxPoints.length > 0) {
-                let minDist = Infinity, idx = 0;
-                gpxPoints.forEach((p, i) => {
-                    let d = L.latLng(ll).distanceTo(L.latLng(p.lat, p.lon));
-                    if(d < minDist) { minDist = d; idx = i; }
-                });
-                let dRem = 0;
-                for(let i=idx; i<gpxPoints.length-1; i++) dRem += L.latLng(gpxPoints[i].lat, gpxPoints[i].lon).distanceTo(L.latLng(gpxPoints[i+1].lat, gpxPoints[i+1].lon));
-                document.getElementById('dash-todo').innerText = (dRem/1000).toFixed(1);
-            }
-        }
-
-        function sendSOS() {
-            const ll = marker.getLatLng();
-            const msg = `SOS! Posizione: http://maps.google.com/maps?q=${ll.lat},${ll.lng} (Quota: ${document.getElementById('dash-alt').innerText}m)`;
-            navigator.clipboard.writeText(msg).then(() => alert("SOS COPIATO!"));
-        }
-
-        async function downloadMapArea() {
-            if (!gpxLayer) return alert("Carica un GPX!");
-            const box = document.getElementById('download-box'), bar = document.getElementById('progress-bar');
-            box.style.display = 'block';
-            const bounds = gpxLayer.getBounds(), cache = await caches.open('map-v43'), zooms = [14, 15];
-            let urls = [];
-            zooms.forEach(z => {
-                const nw = map.project(bounds.getNorthWest(), z).divideBy(256).floor(), se = map.project(bounds.getSouthEast(), z).divideBy(256).floor();
-                for (let x = nw.x; x <= se.x; x++) for (let y = nw.y; y <= se.y; y++) urls.push(`https://a.tile.openstreetmap.org/${z}/${x}/${y}.png`);
-            });
-            for (let i = 0; i < urls.length; i++) {
-                try { await fetch(urls[i]).then(r => cache.put(urls[i], r)); } catch (e) {}
-                bar.style.width = Math.round(((i+1)/urls.length)*100) + "%";
-            }
-            alert("Mappa Offline Salvata!"); box.style.display = 'none';
-        }
-
-        function renderGPX(data) {
-            if (gpxLayer) map.removeLayer(gpxLayer);
-            gpxLayer = omnivore.gpx.parse(data).on('ready', () => {
-                gpxPoints = [];
-                gpxLayer.eachLayer(l => { if(l.getLatLngs) l.getLatLngs().forEach(p => gpxPoints.push({lat: p.lat, lon: p.lng, alt: p.alt || 0})); });
-                altChart.data.datasets[0].data = gpxPoints.map(p => p.alt);
-                altChart.update();
-                map.fitBounds(gpxLayer.getBounds());
-            }).addTo(map);
-        }
-
-        function initChart() {
-            altChart = new Chart(document.getElementById('altChart'), {
-                type: 'line',
-                data: { labels: new Array(100).fill(''), datasets: [{ data: [], borderColor: '#f1c40f', pointRadius: 0, fill: true, backgroundColor: 'rgba(241,196,15,0.1)' }] },
-                options: { maintainAspectRatio: false, plugins: { legend: {display: false} }, scales: { x: {display: false}, y: {ticks: {color: '#666', size: 9}} } }
-            });
-        }
-
-        function centerOnMe() { if (marker) map.setView(marker.getLatLng(), 17); }
-
-        function switchPage(p) {
-            document.querySelectorAll('.page').forEach(pg => pg.classList.remove('active'));
-            document.getElementById('page-' + p).classList.add('active');
-            document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
-            document.getElementById('tab-' + p).classList.add('active');
-            if(p === 'map') setTimeout(() => map.invalidateSize(), 300);
-        }
-
-        function toggleToolbox() {
-            const p = document.getElementById('toolbox-panel');
-            p.style.display = p.style.display === 'block' ? 'none' : 'block';
-        }
-
-        function requestSensorPermission() {
-            if (typeof DeviceOrientationEvent.requestPermission === 'function') {
-                DeviceOrientationEvent.requestPermission().then(r => { if(r==='granted') window.addEventListener('deviceorientation', hOrient); });
-            } else window.addEventListener('deviceorientation', hOrient);
-            document.getElementById('sensor-btn').style.background = "var(--success)";
-        }
-
-        function hOrient(e) {
-            let h = e.webkitCompassHeading || (360 - e.alpha);
-            document.getElementById('compass-rose').style.transform = `rotate(${-h}deg)`;
-            document.getElementById('degrees').innerText = Math.round(h) + "°";
-        }
-
-        function checkSensors() { alert(`CHECK-UP:\nGPS: ±${marker ? 'OK' : 'Attesa...'}\nBussola: ${window.DeviceOrientationEvent ? 'OK' : 'N.D.'}\nBarometro: ${('PressureSensor' in window) ? 'OK' : 'N.D.'}`); }
-
-        function handleFileSelect(e) {
+            this.tempPoints.push(latlng);
+        },
+        save() {
+            const pts = mapManager.editLine.getLatLngs();
+            if(pts.length < 2) return alert("Disegna almeno un breve tratto");
+            // Nota: Qui potresti convertire in un oggetto JSON strutturato invece di XML GPX per performance
+            // Per ora salviamo il set di punti per mantenere la compatibilità rendering
+            const rawPath = JSON.stringify(pts);
+            localStorage.setItem('v51_saved_path_raw', rawPath); 
+            // In una versione PRO qui chiameresti un'API di elevazione per arricchire i dati
+            location.reload(); 
+        },
+        undo() {
+            const current = mapManager.editLine.getLatLngs();
+            current.pop();
+            mapManager.editLine.setLatLngs(current);
+            this.tempPoints.pop();
+        },
+        handleFileUpload(e) {
             const reader = new FileReader();
-                reader.onload = (ev) => { localStorage.setItem('saved_path_json', ev.target.result); renderGPX(ev.target.result); toggleToolbox(); };
-                reader.readAsText(e.target.files[0]);
+            reader.onload = (ev) => {
+                localStorage.setItem('v51_saved_path_raw', ev.target.result);
+                this.renderPath(ev.target.result);
+                ui.toggleToolbox();
+            };
+            reader.readAsText(e.target.files[0]);
+        },
+        renderPath(data) {
+            if (mapManager.gpxLayer) mapManager.map.removeLayer(mapManager.gpxLayer);
+            mapManager.gpxLayer = omnivore.gpx.parse(data).on('ready', () => {
+                APP_STATE.routePoints = [];
+                mapManager.gpxLayer.eachLayer(l => { 
+                    if(l.getLatLngs) {
+                        l.getLatLngs().forEach(p => APP_STATE.routePoints.push({lat: p.lat, lng: p.lng, alt: p.alt || 0}));
+                    }
+                });
+                ui.updateChart();
+                mapManager.map.fitBounds(mapManager.gpxLayer.getBounds());
+            }).addTo(mapManager.map);
         }
+    };
 
-        function clearBreadcrumbs() { if(confirm("Cancella traccia?")) { myHistory = []; breadcrumbLayer.setLatLngs([]); localStorage.removeItem('my_breadcrumb_json'); } }
+    // --- MODULO SENSORI ---
+    const sensors = {
+        initBarometer() {
+            if ('PressureSensor' in window) {
+                try {
+                    const sensor = new PressureSensor({frequency: 1});
+                    sensor.addEventListener('reading', () => {
+                        document.getElementById('baro-val').innerText = sensor.pressure.toFixed(1);
+                    });
+                    sensor.start();
+                } catch(e) { document.getElementById('baro-error').style.display = 'block'; }
+            } else {
+                document.getElementById('baro-error').style.display = 'block';
+            }
+        },
+        requestPermissions() {
+            if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+                DeviceOrientationEvent.requestPermission()
+                    .then(response => { if (response === 'granted') this.startCompass(); })
+                    .catch(console.error);
+            } else {
+                this.startCompass();
+            }
+        },
+        startCompass() {
+            window.addEventListener('deviceorientation', e => {
+                APP_STATE.heading = e.webkitCompassHeading || (360 - e.alpha);
+                document.getElementById('compass-rose').style.transform = `rotate(${-APP_STATE.heading}deg)`;
+                document.getElementById('degrees').innerText = `${Math.round(APP_STATE.heading)}°`;
+            });
+        }
+    };
 
-        window.onload = initApp;
+    // --- MODULO UI & CHART ---
+    let altChartInstance = null;
+    const ui = {
+        init() {
+            this.initChart();
+            setTimeout(() => {
+                const s = document.getElementById('splash-screen');
+                s.style.opacity = '0';
+                setTimeout(() => s.style.display = 'none', 800);
+            }, 3000);
+        },
+        switchPage(p) {
+            document.querySelectorAll('.page').forEach(pg => pg.classList.remove('active'));
+            document.getElementById('page-'+p).classList.add('active');
+            document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+            document.getElementById('tab-'+p).classList.add('active');
+            if(p === 'map') setTimeout(() => mapManager.map.invalidateSize(), 300);
+        },
+        toggleToolbox() {
+            const p = document.getElementById('toolbox-panel');
+            p.style.display = (p.style.display === 'block') ? 'none' : 'block';
+        },
+        initChart() {
+            const ctx = document.getElementById('altChart').getContext('2d');
+            altChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [
+                        { label: 'Profilo', data: [], borderColor: '#f1c40f', backgroundColor: 'rgba(241,196,15,0.1)', fill: true, pointRadius: 0, borderWidth: 2 },
+                        { label: 'Tu', data: [], pointRadius: 6, pointBackgroundColor: '#ff4757', showLine: false }
+                    ]
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { display: false },
+                        y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#64748b' } }
+                    }
+                }
+            });
+        },
+        updateChart() {
+            if(!altChartInstance || APP_STATE.routePoints.length === 0) return;
+            altChartInstance.data.labels = APP_STATE.routePoints.map((_, i) => i);
+            altChartInstance.data.datasets[0].data = APP_STATE.routePoints.map(p => p.alt);
+            altChartInstance.update();
+        },
+        updateDashboard(ll) {
+            // Calcolo KM fatti e D+ fatto
+            let distDone = 0, gainDone = 0;
+            for(let i=1; i < APP_STATE.history.length; i++) {
+                distDone += L.latLng(APP_STATE.history[i-1]).distanceTo(L.latLng(APP_STATE.history[i]));
+                let diff = APP_STATE.history[i].alt - APP_STATE.history[i-1].alt;
+                if(diff > 0) gainDone += diff;
+            }
+            document.getElementById('dash-done').innerText = (distDone/1000).toFixed(1);
+            document.getElementById('dash-up-done').innerText = Math.round(gainDone);
+
+            // Calcolo residui se c'è un percorso
+            if (APP_STATE.routePoints.length > 0) {
+                let minDist = Infinity, closestIdx = 0;
+                APP_STATE.routePoints.forEach((p, i) => {
+                    let d = L.latLng(ll).distanceTo(L.latLng(p.lat, p.lng));
+                    if(d < minDist) { minDist = d; closestIdx = i; }
+                });
+
+                // Update cursore su grafico
+                altChartInstance.data.datasets[1].data = APP_STATE.routePoints.map((_, i) => i === closestIdx ? APP_STATE.routePoints[i].alt : null);
+                altChartInstance.update('none');
+
+                let distRem = 0, gainRem = 0;
+                for(let i = closestIdx; i < APP_STATE.routePoints.length - 1; i++) {
+                    distRem += L.latLng(APP_STATE.routePoints[i]).distanceTo(L.latLng(APP_STATE.routePoints[i+1]));
+                    let diff = APP_STATE.routePoints[i+1].alt - APP_STATE.routePoints[i].alt;
+                    if(diff > 0) gainRem += diff;
+                }
+                document.getElementById('dash-todo').innerText = (distRem/1000).toFixed(1);
+                document.getElementById('dash-up-todo').innerText = Math.round(gainRem);
+            }
+        }
+    };
+
+    // Avvio del sistema
+    window.onload = () => {
+        ui.init();
+        mapManager.init();
+        geo.init();
+        sensors.initBarometer();
+    };
     </script>
 </body>
 </html>
