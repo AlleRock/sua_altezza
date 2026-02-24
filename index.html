@@ -21,27 +21,34 @@
         body.night-mode { --gold: #e74c3c; --bg: #1a0000; --card-bg: rgba(255, 0, 0, 0.05); --tab-bg: #0d0000; --text: #ff4444; }
 
         body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 0; overflow: hidden; height: 100vh; }
+        
+        /* SCHERMATA INTRO (SPLASH SCREEN) */
+        #splash-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #0b0f1a; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; z-index: 9999;
+            transition: opacity 1s ease, visibility 1s;
+        }
+        #splash-screen h1 { font-weight: 900; font-size: 2.5rem; margin: 0; color: var(--gold); text-transform: uppercase; }
+        #splash-screen .subtitle { font-size: 0.8rem; letter-spacing: 3px; color: #64748b; text-transform: uppercase; margin-top: 5px; }
+        #splash-screen .mem-brand { margin-top: 40px; font-size: 0.8rem; color: rgba(255,255,255,0.4); text-transform: uppercase; }
+        #splash-screen .mem-brand b { color: var(--gold); }
+
+        /* INTERFACCIA PRINCIPALE */
         .page { display: none; height: calc(100vh - 75px); width: 100%; padding: 15px; box-sizing: border-box; overflow-y: auto; }
         .page.active { display: block; }
 
         #page-map { padding: 0; position: relative; }
         #map { height: 100%; width: 100%; z-index: 1; background: #000; }
 
-        header { text-align: center; }
-        h1 { font-weight: 900; font-size: 1.8rem; margin: 0; color: var(--gold); text-transform: uppercase; }
-        .subtitle { font-size: 0.65rem; letter-spacing: 2px; color: #64748b; text-transform: uppercase; margin-bottom: 10px; }
-        
-        .mem-brand { text-align: center; font-size: 0.7rem; color: rgba(255,255,255,0.3); text-transform: uppercase; margin-bottom: 15px; }
-        .mem-brand b { color: var(--gold); }
+        .card { background: var(--card-bg); border: 2px solid var(--gold); border-radius: 20px; padding: 20px; text-align: center; margin-bottom: 20px; margin-top: 10px; }
+        .value { font-family: 'Barlow Condensed'; font-size: 3.5rem; font-weight: 800; line-height: 1; }
 
-        .card { background: var(--card-bg); border: 2px solid var(--gold); border-radius: 20px; padding: 15px; text-align: center; margin-bottom: 15px; }
-        .value { font-family: 'Barlow Condensed'; font-size: 3rem; font-weight: 800; line-height: 1; }
-
-        .compass-area { position: relative; width: 160px; height: 160px; margin: 0 auto 15px auto; display: flex; align-items: center; justify-content: center; }
+        .compass-area { position: relative; width: 180px; height: 180px; margin: 0 auto 20px auto; display: flex; align-items: center; justify-content: center; }
         .compass-housing { position: absolute; width: 100%; height: 100%; border-radius: 50%; border: 2px solid rgba(255,255,255,0.1); background: radial-gradient(circle, #1a1f2e 0%, #0b0f1a 100%); }
         #compass-rose { width: 85%; height: 85%; transition: transform 0.1s linear; z-index: 2; }
         .fixed-pointer { position: absolute; top: -5px; width: 4px; height: 20px; background: var(--gold); z-index: 10; }
-        .degrees-display { position: absolute; font-family: 'Barlow Condensed'; font-size: 1.5rem; font-weight: 800; }
+        .degrees-display { position: absolute; font-family: 'Barlow Condensed'; font-size: 1.8rem; font-weight: 800; }
 
         #download-box { display: none; background: rgba(46, 204, 113, 0.1); padding: 12px; border-radius: 12px; margin-bottom: 15px; border: 1px dashed var(--success); }
         .progress-bg { width: 100%; height: 10px; background: #333; border-radius: 5px; overflow: hidden; margin: 8px 0; }
@@ -64,15 +71,15 @@
 </head>
 <body>
 
-    <div id="page-dash" class="page active">
-        <header>
-            <h1>SUA ALTEZZA</h1>
-            <div class="subtitle">Sistemi di Navigazione Reali</div>
-        </header>
+    <div id="splash-screen">
+        <h1>SUA ALTEZZA</h1>
+        <div class="subtitle">Sistemi di Navigazione Reali</div>
         <div class="mem-brand">Designed by <b>Mem Software</b></div>
+    </div>
 
+    <div id="page-dash" class="page active">
         <div class="card">
-            <div style="font-size:0.7rem; color:#64748b; font-weight:700; text-transform: uppercase;">Quota Attuale (m)</div>
+            <div style="font-size:0.75rem; color:#64748b; font-weight:700; text-transform: uppercase; letter-spacing: 1px;">Quota Attuale (m)</div>
             <div id="dash-gps" class="value">--</div>
         </div>
 
@@ -123,22 +130,23 @@
     <script>
         let map, marker, gpxLayer, breadcrumbLayer;
         let myHistory = [];
-        const MAP_CACHE = 'map-tiles-v30';
+        const MAP_CACHE = 'map-tiles-v31';
         const MY_ROYAL_ICON = "https://raw.githubusercontent.com/AlleRock/sua_altezza/main/punto.png";
+
+        // GESTIONE INTRO (4 secondi)
+        setTimeout(() => {
+            const splash = document.getElementById('splash-screen');
+            splash.style.opacity = '0';
+            setTimeout(() => { splash.style.visibility = 'hidden'; }, 1000);
+        }, 4000);
 
         function initApp() {
             map = L.map('map', { zoomControl: false }).setView([41.9, 12.5], 5);
-            
-            // PREDEFINITA: Stradale
             const street = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
             const satellite = L.tileLayer('https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}');
             const topo = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png');
 
-            L.control.layers({
-                "Stradale": street,
-                "Satellite": satellite,
-                "Rilievi": topo
-            }, null, { position: 'topleft' }).addTo(map);
+            L.control.layers({"Stradale": street, "Satellite": satellite, "Rilievi": topo}, null, { position: 'topleft' }).addTo(map);
 
             breadcrumbLayer = L.polyline([], {color: '#00d2ff', weight: 4, dashArray: '5, 8'}).addTo(map);
 
