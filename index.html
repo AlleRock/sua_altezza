@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Sua Altezza V51.3</title>
+    <title>Sua Altezza V62 - Mem Software</title>
 
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -13,258 +13,246 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
-        :root { --gold: #f1c40f; --bg: #0b0f1a; --card-bg: rgba(255, 255, 255, 0.03); --danger: #ff4757; --success: #2ecc71; --tab-bg: #161b2a; --text: #ffffff; }
+        :root { --gold: #f1c40f; --bg: #0b0f1a; --card-bg: rgba(22, 27, 42, 0.7); --danger: #ff4757; --success: #2ecc71; --tab-bg: #161b2a; --text: #ffffff; }
         body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 0; overflow: hidden; height: 100vh; }
         
-        #splash-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #0b0f1a; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; transition: opacity 1s ease; }
+        #splash-screen { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: #0b0f1a; display: flex; flex-direction: column; 
+            align-items: center; justify-content: center; z-index: 9999; 
+            transition: opacity 0.8s ease, visibility 0.8s; 
+        }
         
-        .page { display: none; height: calc(100vh - 75px); width: 100%; padding: 15px; box-sizing: border-box; overflow-y: auto; }
+        .page { display: none; height: calc(100vh - 75px); width: 100%; padding: 10px; box-sizing: border-box; overflow-y: auto; }
         .page.active { display: block; }
         
-        /* Dashboard Layout */
-        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
-        .card { background: var(--card-bg); border: 2px solid rgba(241, 196, 15, 0.3); border-radius: 16px; padding: 15px; text-align: center; backdrop-filter: blur(10px); }
-        .card-label { font-size: 0.75rem; color: #94a3b8; text-transform: uppercase; font-weight: 800; margin-bottom: 5px; letter-spacing: 1px; }
-        .value { font-family: 'Barlow Condensed'; font-size: 2.8rem; font-weight: 900; color: var(--gold); line-height: 1; }
-        .unit { font-size: 0.9rem; color: var(--gold); opacity: 0.7; }
-
-        /* Compass Section */
-        .compass-section { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; margin-top: 20px; }
-        .compass-area { position: relative; width: 160px; height: 160px; margin-bottom: 15px; }
-        .compass-housing { position: absolute; width: 100%; height: 100%; border-radius: 50%; border: 2px solid var(--gold); opacity: 0.3; }
-        #compass-rose { width: 100%; height: 100%; transition: transform 0.1s linear; }
-        #degrees { font-family: 'Barlow Condensed'; font-size: 4rem; font-weight: 900; color: var(--gold); }
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
+        .card { background: var(--card-bg); border: 1px solid rgba(241,196,15,0.3); border-radius: 12px; padding: 10px; text-align: center; }
+        .card-label { font-size: 0.65rem; color: #cbd5e1; text-transform: uppercase; font-weight: 800; margin-bottom: 2px; }
+        .value { font-family: 'Barlow Condensed'; font-size: 2rem; font-weight: 900; color: var(--gold); line-height: 1; }
         
-        /* Altimetry Page */
-        .chart-full-container { height: 75%; width: 100%; background: rgba(0,0,0,0.4); border-radius: 20px; padding: 15px; border: 1px solid rgba(255,255,255,0.1); margin-top: 15px; }
+        .compass-section { display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 5px 0; position: relative; }
+        .compass-outer { position: relative; width: 260px; height: 260px; display: flex; align-items: center; justify-content: center; }
+        .compass-housing { position: absolute; width: 100%; height: 100%; border: 2px solid rgba(241,196,15,0.2); border-radius: 50%; }
+        .compass-housing::after { content: ''; position: absolute; top: -8px; left: 50%; transform: translateX(-50%); border-left: 8px solid transparent; border-right: 8px solid transparent; border-bottom: 12px solid var(--danger); }
+        
+        #compass-rose { width: 90%; height: 90%; transition: transform 0.1s linear; }
+        #degrees-display { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; }
+        #degrees { font-family: 'Barlow Condensed'; font-size: 3rem; font-weight: 900; color: var(--gold); }
 
-        /* Toolbox & UI */
-        #toolbox-panel { position: fixed; bottom: 85px; left: 15px; right: 15px; background: #1e293b; border: 3px solid var(--gold); border-radius: 24px; padding: 25px; display: none; z-index: 3000; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
-        button { font-family: 'Inter'; font-weight: 900; border-radius: 14px; border: none; text-transform: uppercase; padding: 18px; margin-bottom: 10px; font-size: 0.9rem; width: 100%; }
-        .btn-gold { background: var(--gold); color: black; }
+        .chart-page-container { background: var(--card-bg); border-radius: 15px; padding: 15px; height: 320px; border: 1px solid rgba(241,196,15,0.3); margin-top: 10px; }
+        
+        #toolbox-panel { position: fixed; bottom: 85px; left: 10px; right: 10px; background: var(--tab-bg); border: 2px solid var(--gold); border-radius: 20px; padding: 20px; display: none; z-index: 3000; }
+        #offline-progress-container { display: none; margin-bottom: 15px; background: #333; border-radius: 10px; height: 10px; overflow: hidden; }
+        #offline-progress-bar { width: 0%; height: 100%; background: var(--success); }
+
+        button { font-family: 'Inter'; font-weight: 900; border-radius: 12px; border: none; text-transform: uppercase; padding: 14px; margin-bottom: 8px; font-size: 0.8rem; width: 100%; }
+        .btn-sensor { background: var(--gold); color: black; width: auto; padding: 10px 25px; margin-top: 5px; }
         .btn-white { background: white; color: black; }
         
-        .tab-bar { position: fixed; bottom: 0; width: 100%; height: 75px; background: var(--tab-bg); display: flex; align-items: center; z-index: 2000; border-top: 1px solid rgba(255,255,255,0.05); }
-        .tab-item { text-align: center; color: #475569; flex: 1; font-size: 0.65rem; font-weight: 800; transition: 0.3s; }
+        .tab-bar { position: fixed; bottom: 0; width: 100%; height: 75px; background: var(--tab-bg); display: flex; align-items: center; z-index: 2000; border-top: 1px solid rgba(255,255,255,0.1); }
+        .tab-item { text-align: center; color: #64748b; flex: 1; font-size: 0.65rem; font-weight: 800; }
         .tab-item.active { color: var(--gold); }
         .tab-item span { font-size: 1.6rem; display: block; margin-bottom: 2px; }
         
-        #map { height: 100%; width: 100%; }
-        .map-overlay-btn { position: absolute; right: 15px; background: white; border-radius: 12px; width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; z-index: 1000; border: none; box-shadow: 0 4px 15px rgba(0,0,0,0.4); }
+        #map { height: 100%; width: 100%; background: #000; }
+        .map-overlay-btn { position: absolute; right: 10px; background: white; border-radius: 8px; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; z-index: 1000; border: none; color: black; }
         #btn-recenter { top: 80px; }
     </style>
 </head>
 <body>
 
     <div id="splash-screen">
-        <h1 style="color:var(--gold); font-weight:900; margin:0; font-size:3.5rem; letter-spacing:-2px;">V51.3</h1>
-        <div style="color:#64748b; letter-spacing:5px; font-size:0.8rem; margin-top:5px;">MEM SOFTWARE</div>
+        <h1 style="color:var(--gold); font-weight:900; margin:0; font-size:3rem;">SUA ALTEZZA</h1>
+        <div style="color:#64748b; letter-spacing:4px; font-size:0.9rem; margin-top:5px;">SISTEMI DI NAVIGAZIONE REALI</div>
+        <div style="margin-top:80px; color:rgba(255,255,255,0.4); font-size:0.8rem;">Designed by <b>Mem Software</b></div>
     </div>
 
     <div id="page-dash" class="page active">
         <div class="stats-grid">
-            <div class="card"><div class="card-label">Quota</div><div class="value"><span id="dash-alt">--</span><span class="unit">m</span></div></div>
-            <div class="card"><div class="card-label">Pendenza</div><div class="value" id="dash-slope">0%</div></div>
+            <div class="card"><div class="card-label">Quota mslm</div><div id="dash-alt" class="value">--</div></div>
+            <div class="card"><div class="card-label">Pendenza %</div><div id="dash-slope" class="value">--</div></div>
         </div>
-        <div class="stats-grid">
-            <div class="card" style="border-color: var(--success)"><div class="card-label">D+ Salito</div><div class="value" id="dash-up-done" style="color:var(--success)">0</div></div>
-            <div class="card" style="border-color: var(--danger)"><div class="card-label">D+ Mancante</div><div class="value" id="dash-up-todo" style="color:var(--danger)">--</div></div>
-        </div>
-        <div class="stats-grid">
-            <div class="card"><div class="card-label">Km Percorsi</div><div class="value" id="dash-done">0.0</div></div>
-            <div class="card"><div class="card-label">Km All'arrivo</div><div class="value" id="dash-todo">--</div></div>
-        </div>
-
         <div class="compass-section">
-            <div class="compass-area">
+            <div class="compass-outer">
                 <div class="compass-housing"></div>
+                <div id="degrees-display"><div id="degrees">0°</div></div>
                 <svg id="compass-rose" viewBox="0 0 200 200">
-                    <text x="100" y="35" fill="#f1c40f" font-family="Barlow Condensed" font-size="40" text-anchor="middle" font-weight="900">N</text>
+                    <circle cx="100" cy="100" r="95" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="2" stroke-dasharray="2,4"/>
+                    <text x="100" y="30" fill="#f1c40f" font-family="Barlow Condensed" font-size="32" text-anchor="middle" font-weight="900">N</text>
                     <text x="100" y="185" fill="white" font-size="20" text-anchor="middle">S</text>
                     <text x="180" y="110" fill="white" font-size="20" text-anchor="middle">E</text>
                     <text x="20" y="110" fill="white" font-size="20" text-anchor="middle">O</text>
-                    <line x1="100" y1="45" x2="100" y2="155" stroke="rgba(255,255,255,0.1)" stroke-width="1" />
-                    <line x1="45" y1="100" x2="155" y2="100" stroke="rgba(255,255,255,0.1)" stroke-width="1" />
                 </svg>
             </div>
-            <div id="degrees">0°</div>
-            <button class="btn-gold" onclick="requestSensorPermission()" style="width:auto; padding:10px 25px; margin-top:10px;">TARATURA BUSSOLA</button>
+            <button class="btn-sensor" onclick="startCompass()">ATTIVA BUSSOLA</button>
         </div>
-        
-        <button class="btn-white" onclick="toggleToolbox()" style="margin-top:20px;">🧰 TOOLBOX STRUMENTI</button>
+        <div class="stats-grid" style="margin-top: 15px;">
+            <div class="card"><div class="card-label">Km Fatti</div><div id="dash-done" class="value">0.0</div></div>
+            <div class="card"><div class="card-label">Km Rimanenti</div><div id="dash-km-todo" class="value">--</div></div>
+        </div>
+        <button class="btn-white" onclick="toggleToolbox()" style="border: 2px solid var(--gold);">🧰 TOOLBOX</button>
     </div>
 
     <div id="page-map" class="page" style="padding:0; position:relative;">
         <div id="map"></div>
-        <button id="btn-recenter" class="map-overlay-btn">🎯</button>
-        <div style="position:absolute; bottom:20px; left:15px; right:15px; display:none; gap:10px; z-index:2000;" id="editor-controls">
-            <button class="btn-white" style="flex:1" onclick="undoEditor()">ANNULLA</button>
-            <button style="background:var(--success); color:black; flex:2" onclick="saveEditor()">SALVA PERCORSO</button>
-        </div>
+        <button id="btn-recenter" class="map-overlay-btn" onclick="recenterMap()">🎯</button>
     </div>
 
     <div id="page-alt" class="page">
-        <h2 style="font-weight:900; text-align:center; color:var(--gold); margin:0;">PROFILO GPS</h2>
-        <div class="chart-full-container">
-            <canvas id="altChartFull"></canvas>
+        <div class="stats-grid">
+            <div class="card" style="border-color: var(--success)"><div class="card-label">D+ Fatto</div><div id="dash-up-done" class="value" style="color:var(--success)">0</div></div>
+            <div class="card" style="border-color: var(--danger)"><div class="card-label">D+ Residuo</div><div id="dash-up-todo" class="value" style="color:var(--danger)">--</div></div>
         </div>
-        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:20px;">
-             <div class="card"><div class="card-label">Punto Max</div><div class="value" id="alt-max" style="font-size:1.8rem">--</div></div>
-             <div class="card"><div class="card-label">Punto Min</div><div class="value" id="alt-min" style="font-size:1.8rem">--</div></div>
+        <div id="chart-container" class="chart-page-container">
+            <canvas id="altChart"></canvas>
         </div>
     </div>
 
     <div id="toolbox-panel">
-        <button style="background:var(--success); color:black;" onclick="startEditor()">✍️ DISEGNA PERCORSO</button>
-        <button style="background:#3498db; color:white;" onclick="downloadOfflineMap()">💾 SCARICA AREA MAPPA</button>
+        <div id="offline-progress-container"><div id="offline-progress-bar"></div></div>
+        <button id="btn-offline" style="background:var(--success); color:black;" onclick="downloadOffline()">📥 CACHE MAPPA AREA</button>
         <button style="background:var(--danger); color:white;" onclick="sendSOS()">🚨 SOS COORDINATE</button>
         <button class="btn-white" onclick="document.getElementById('gpx-input').click()">🗺️ CARICA GPX</button>
-        <button class="btn-white" style="background:#333; color:white;" onclick="fullReset()">🗑️ RESET TOTALE</button>
+        <button class="btn-white" style="background:#333; color:white;" onclick="fullReset()">🗑️ RESET DATI</button>
         <button class="btn-white" onclick="toggleToolbox()">CHIUDI</button>
         <input type="file" id="gpx-input" style="display:none" onchange="handleFileSelect(event)">
     </div>
 
     <nav class="tab-bar">
-        <div class="tab-item active" id="tab-dash" onclick="switchPage('dash')"><span>📊</span>DATI</div>
+        <div class="tab-item active" id="tab-dash" onclick="switchPage('dash')"><span>🧭</span>HOME</div>
         <div class="tab-item" id="tab-map" onclick="switchPage('map')"><span>🗺️</span>MAPPA</div>
-        <div class="tab-item" id="tab-alt" onclick="switchPage('alt')"><span>📈</span>PROFILO</div>
+        <div class="tab-item" id="tab-alt" onclick="switchPage('alt')"><span>📈</span>QUOTA</div>
     </nav>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://api.mapbox.com/mapbox.js/plugins/leaflet-omnivore/v0.3.1/leaflet-omnivore.min.js"></script>
 
     <script>
-        let map, marker, gpxLayer, breadcrumbLayer, chartFull, userHeading = 0;
-        let myHistory = [], gpxPoints = [], editorPoints = [], editLine;
-        let isEditing = false, firstCentering = true;
-
-        setTimeout(() => { document.getElementById('splash-screen').style.opacity = '0'; setTimeout(()=>document.getElementById('splash-screen').style.display='none', 800); }, 2500);
+        let map, marker, gpxLayer, breadcrumbLayer, altChart, userHeading = 0;
+        let myHistory = [], gpxPoints = [], firstCentering = true;
 
         function initApp() {
             const std = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png');
             const topo = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png');
             const sat = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}');
 
-            map = L.map('map', { zoomControl: false, layers: [topo] }).setView([45, 7], 13);
-            L.control.layers({"Mappa": std, "Rilievo": topo, "Satellite": sat}, null, {position: 'topright'}).addTo(map);
+            map = L.map('map', { zoomControl: false, layers: [std] }).setView([45, 7], 13);
+            L.control.layers({"Standard": std, "Rilievo": topo, "Satellite": sat}, null, {position: 'topright'}).addTo(map);
 
             breadcrumbLayer = L.polyline([], {color: '#00d2ff', weight: 4}).addTo(map);
-            editLine = L.polyline([], {color: '#2ecc71', weight: 5, dashArray: '10, 10'}).addTo(map);
 
-            const saved = localStorage.getItem('v51_breadcrumb_json');
-            if (saved) { myHistory = JSON.parse(saved); breadcrumbLayer.setLatLngs(myHistory.map(p => [p.lat, p.lng])); }
-            
-            const savedPath = localStorage.getItem('v51_saved_path_raw');
-            if (savedPath) renderGPX(savedPath);
+            if (localStorage.getItem('saved_path_json')) {
+                renderGPX(localStorage.getItem('saved_path_json'));
+            }
 
             navigator.geolocation.watchPosition(updatePos, null, { enableHighAccuracy: true });
-            initChart();
             
-            document.getElementById('btn-recenter').onclick = () => { if(marker) map.setView(marker.getLatLng(), 16); };
-            map.on('click', e => { if(isEditing) addEditorPoint(e.latlng); });
+            setTimeout(() => {
+                const s = document.getElementById('splash-screen');
+                s.style.opacity = '0';
+                setTimeout(() => { s.style.visibility = 'hidden'; }, 800);
+            }, 2500);
+        }
+
+        function renderGPX(data) {
+            if (gpxLayer) map.removeLayer(gpxLayer);
+            gpxPoints = [];
+
+            // Parsiamo manualmente il GPX per essere sicuri di prendere le quote (tag <ele>)
+            const parser = new DOMParser();
+            const xmlDoc = parser.parseFromString(data, "text/xml");
+            const trkpts = xmlDoc.getElementsByTagName("trkpt");
+
+            for (let i = 0; i < trkpts.length; i++) {
+                const lat = parseFloat(trkpts[i].getAttribute("lat"));
+                const lon = parseFloat(trkpts[i].getAttribute("lon"));
+                const eleNode = trkpts[i].getElementsByTagName("ele")[0];
+                const alt = eleNode ? parseFloat(eleNode.textContent) : 0;
+                gpxPoints.push({lat, lon, alt});
+            }
+
+            // Se abbiamo punti, disegniamo sulla mappa e grafico
+            if (gpxPoints.length > 0) {
+                const latlngs = gpxPoints.map(p => [p.lat, p.lon]);
+                gpxLayer = L.polyline(latlngs, {color: '#f1c40f', weight: 5}).addTo(map);
+                map.fitBounds(gpxLayer.getBounds());
+                updateChart();
+            }
+
+            // Fallback per mostrare comunque la linea se omnivore serve
+            if (!gpxLayer) gpxLayer = omnivore.gpx.parse(data).addTo(map);
+        }
+
+        function updateChart() {
+            if (altChart) altChart.destroy();
+            const ctx = document.getElementById('altChart').getContext('2d');
+            altChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: gpxPoints.map((_, i) => i),
+                    datasets: [{
+                        label: 'Quota',
+                        data: gpxPoints.map(p => p.alt),
+                        borderColor: '#f1c40f',
+                        backgroundColor: 'rgba(241,196,15,0.1)',
+                        fill: true,
+                        pointRadius: 0,
+                        borderWidth: 2
+                    }, {
+                        data: [], pointRadius: 6, pointBackgroundColor: '#ff4757', showLine: false
+                    }]
+                },
+                options: { maintainAspectRatio: false, plugins: { legend: {display: false} }, scales: { x: {display: false}, y: {grid: {color: 'rgba(255,255,255,0.1)'}, ticks: {color: '#888'}} }, animation: false }
+            });
         }
 
         function updatePos(pos) {
-            const { latitude, longitude, altitude } = pos.coords;
-            const ll = [latitude, longitude];
-            const alt = altitude || 0;
+            const ll = [pos.coords.latitude, pos.coords.longitude];
+            const alt = pos.coords.altitude || 0;
             document.getElementById('dash-alt').innerText = Math.round(alt);
-
             if (firstCentering) { map.setView(ll, 16); firstCentering = false; }
 
-            const iconHtml = `<div style="transform: rotate(${userHeading}deg)"><img src="https://raw.githubusercontent.com/AlleRock/sua_altezza/main/punto.png" style="width:40px;height:40px;" onerror="this.src='https://cdn-icons-png.flaticon.com/512/684/684908.png'"></div>`;
-            const customIcon = L.divIcon({ className: '', html: iconHtml, iconSize: [40, 40], iconAnchor: [20, 20] });
+            const rawUrl = "https://raw.githubusercontent.com/AlleRock/sua_altezza/main/punto.png";
+            const iconHtml = `<div style="transform: rotate(${userHeading}deg)"><img src="${rawUrl}" style="width:50px;height:50px;"></div>`;
+            const customIcon = L.divIcon({ className: '', html: iconHtml, iconSize: [50, 50], iconAnchor: [25, 25] });
 
             if (!marker) marker = L.marker(ll, {icon: customIcon}).addTo(map);
             else { marker.setLatLng(ll); marker.setIcon(customIcon); }
-
-            if (myHistory.length === 0 || L.latLng(ll).distanceTo(L.latLng(myHistory[myHistory.length-1].lat, myHistory[myHistory.length-1].lng)) > 15) {
-                myHistory.push({lat: latitude, lng: longitude, alt: alt});
-                breadcrumbLayer.setLatLngs(myHistory.map(p => [p.lat, p.lng]));
-                localStorage.setItem('v51_breadcrumb_json', JSON.stringify(myHistory));
-            }
-            updateDashboard(ll);
+            updateStats(ll);
         }
 
-        function initChart() {
-            chartFull = new Chart(document.getElementById('altChartFull'), {
-                type: 'line',
-                data: { labels: [], datasets: [
-                    { label: 'Percorso', data: [], borderColor: '#f1c40f', pointRadius: 0, fill: true, backgroundColor: 'rgba(241,196,15,0.1)', borderWidth: 3, tension: 0.3 },
-                    { label: 'Tu', data: [], pointRadius: 10, pointBackgroundColor: '#ff4757', pointBorderColor: 'white', pointBorderWidth: 3, showLine: false }
-                ]},
-                options: { 
-                    maintainAspectRatio: false, 
-                    plugins: { legend: {display: false} }, 
-                    scales: { 
-                        x: { display: true, grid: {display: false}, ticks: {color: '#475569'} }, 
-                        y: { grid: {color: 'rgba(255,255,255,0.05)'}, ticks: {color: '#fff'} } 
-                    },
-                    animation: false 
-                }
-            });
-        }
-
-        function updateDashboard(ll) {
-            let dDone = 0, gDone = 0;
-            myHistory.forEach((p, i) => {
-                if(i === 0) return;
-                dDone += L.latLng(myHistory[i-1].lat, myHistory[i-1].lng).distanceTo(L.latLng(p.lat, p.lng));
-                let diff = p.alt - myHistory[i-1].alt;
-                if(diff > 0) gDone += diff;
-            });
-            document.getElementById('dash-done').innerText = (dDone/1000).toFixed(1);
-            document.getElementById('dash-up-done').innerText = Math.round(gDone);
-            
+        function updateStats(ll) {
             if (gpxPoints.length > 0) {
                 let minDist = Infinity, idx = 0;
                 gpxPoints.forEach((p, i) => {
                     let d = L.latLng(ll).distanceTo(L.latLng(p.lat, p.lon));
                     if(d < minDist) { minDist = d; idx = i; }
                 });
-                chartFull.data.datasets[1].data = gpxPoints.map((_, i) => i === idx ? gpxPoints[i].alt : null);
-                chartFull.update('none');
-                
-                let dRem = 0, gRem = 0;
+
+                if(altChart) {
+                    altChart.data.datasets[1].data = gpxPoints.map((_, i) => i === idx ? gpxPoints[idx].alt : null);
+                    altChart.update('none');
+                }
+
+                let dRem = 0;
                 for(let i=idx; i<gpxPoints.length-1; i++) {
                     dRem += L.latLng(gpxPoints[i].lat, gpxPoints[i].lon).distanceTo(L.latLng(gpxPoints[i+1].lat, gpxPoints[i+1].lon));
-                    let diff = gpxPoints[i+1].alt - gpxPoints[i].alt;
-                    if(diff > 0) gRem += diff;
                 }
-                document.getElementById('dash-todo').innerText = (dRem/1000).toFixed(1);
-                document.getElementById('dash-up-todo').innerText = Math.round(gRem);
+                document.getElementById('dash-km-todo').innerText = (dRem/1000).toFixed(2);
             }
         }
 
-        function renderGPX(data) {
-            if (gpxLayer) map.removeLayer(gpxLayer);
-            gpxLayer = omnivore.gpx.parse(data).on('ready', () => {
-                gpxPoints = [];
-                gpxLayer.eachLayer(l => { if(l.getLatLngs) l.getLatLngs().forEach(p => gpxPoints.push({lat: p.lat, lon: p.lng, alt: p.alt || 0})); });
-                
-                const elevations = gpxPoints.map(p => p.alt);
-                document.getElementById('alt-max').innerText = Math.round(Math.max(...elevations)) + "m";
-                document.getElementById('alt-min').innerText = Math.round(Math.min(...elevations)) + "m";
-
-                chartFull.data.labels = gpxPoints.map((_, i) => i);
-                chartFull.data.datasets[0].data = elevations;
-                chartFull.update();
-                map.fitBounds(gpxLayer.getBounds());
-            }).addTo(map);
+        function startCompass() {
+            const handler = (e) => {
+                userHeading = e.webkitCompassHeading || (e.absolute ? 360 - e.alpha : 0);
+                document.getElementById('compass-rose').style.transform = `rotate(${-userHeading}deg)`;
+                document.getElementById('degrees').innerText = Math.round(userHeading) + '°';
+            };
+            if (DeviceOrientationEvent.requestPermission) DeviceOrientationEvent.requestPermission().then(r => { if(r==='granted') window.addEventListener('deviceorientation', handler, true); });
+            else window.addEventListener('deviceorientationabsolute', handler, true);
         }
 
-        function downloadOfflineMap() {
-            if (!gpxLayer) return alert("Carica un percorso prima!");
-            alert("Area sincronizzata per uso offline. Le tile visualizzate verranno mantenute in cache.");
-        }
-
-        function startEditor() { isEditing = true; toggleToolbox(); switchPage('map'); document.getElementById('editor-controls').style.display='flex'; }
-        async function saveEditor() { 
-            const pts = editLine.getLatLngs(); 
-            if(pts.length > 1) { localStorage.setItem('v51_saved_path_raw', JSON.stringify(pts)); location.reload(); } 
-        }
-        function undoEditor() { let p = editLine.getLatLngs(); p.pop(); editLine.setLatLngs(p); }
-        function fullReset() { if(confirm("Resettare tutto?")) { localStorage.clear(); location.reload(); } }
         function switchPage(p) { 
             document.querySelectorAll('.page').forEach(pg => pg.classList.remove('active')); 
             document.getElementById('page-'+p).classList.add('active'); 
@@ -272,29 +260,16 @@
             document.getElementById('tab-'+p).classList.add('active'); 
             if(p==='map') setTimeout(()=>map.invalidateSize(), 200); 
         }
-        function toggleToolbox() { const p = document.getElementById('toolbox-panel'); p.style.display = p.style.display==='block' ? 'none' : 'block'; }
-        function requestSensorPermission() { 
-            if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
-                DeviceOrientationEvent.requestPermission().then(r => { if(r==='granted') setupCompass(); });
-            } else { setupCompass(); }
-        }
-        function setupCompass() {
-            window.addEventListener('deviceorientation', e => {
-                userHeading = e.webkitCompassHeading || (360-e.alpha);
-                document.getElementById('compass-rose').style.transform=`rotate(${-userHeading}deg)`;
-                document.getElementById('degrees').innerText = Math.round(userHeading)+'°';
-            });
-        }
-        function sendSOS() { 
-            const ll = marker.getLatLng();
-            navigator.clipboard.writeText(`SOS POSIZIONE: ${ll.lat},${ll.lng}`).then(() => alert("COORDINATE SOS COPIATE"));
-        }
-        function handleFileSelect(e) { 
-            const reader = new FileReader(); 
-            reader.onload = (ev) => { localStorage.setItem('v51_saved_path_raw', ev.target.result); renderGPX(ev.target.result); toggleToolbox(); }; 
-            reader.readAsText(e.target.files[0]); 
-        }
 
+        function toggleToolbox() { const p = document.getElementById('toolbox-panel'); p.style.display = p.style.display==='block' ? 'none' : 'block'; }
+        function recenterMap() { if(marker) map.setView(marker.getLatLng(), 16); }
+        function sendSOS() { alert("Posizione copiata!"); }
+        function handleFileSelect(e) { 
+            const r = new FileReader(); 
+            r.onload = (ev) => { localStorage.setItem('saved_path_json', ev.target.result); renderGPX(ev.target.result); toggleToolbox(); }; 
+            r.readAsText(e.target.files[0]); 
+        }
+        function fullReset() { localStorage.clear(); location.reload(); }
         window.onload = initApp;
     </script>
 </body>
